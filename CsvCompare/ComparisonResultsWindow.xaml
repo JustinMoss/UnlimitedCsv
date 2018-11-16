@@ -5,32 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CsvCompare"
         mc:Ignorable="d"
-        Title="CSV Compare" Height="600" Width="1200" Closed="Window_Closed">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Grid.Column="0" Content="Differences: " VerticalContentAlignment="Center" />
-        <DataGrid Name="ResultsDataGrid" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
-        <Label Name="File1OrphansLabel" Grid.Row="2" Grid.Column="0" Content="File 1 Extra Columns:" VerticalContentAlignment="Center" Visibility="Collapsed" />
-        <Label Name="File2OrphansLabel" Grid.Row="2" Grid.Column="1" Content="File 2 Extra Columns:" VerticalContentAlignment="Center" Visibility="Collapsed" />
-        <Label Name="File1ExtraRowsLabel"  Grid.Row="3" Grid.Column="0" Content="File 1 Extra Rows:" VerticalContentAlignment="Center" Visibility="Collapsed" />
-        <DataGrid Name="File1ExtraRowsGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Collapsed"/>
-        <Label Name="File2ExtraRowsLabel"  Grid.Row="5" Grid.Column="0" Content="File 2 Extra Rows" VerticalContentAlignment="Center" Visibility="Collapsed" />
-        <DataGrid Name="File2ExtraRowsGrid" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Collapsed"/>
+        Title="CSV Compare" Height="750" Width="1300" Closed="Window_Closed">
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Name="ErrorLabel"  Foreground="Red" VerticalContentAlignment="Center"  HorizontalAlignment="Right" Visibility="Collapsed"/>
+            <Label Name="File1OrphansLabel" Grid.Row="1" Grid.Column="0" Content="File 1 Extra Columns:" VerticalContentAlignment="Center" Visibility="Collapsed" />
+            <Label Name="File2OrphansLabel" Grid.Row="1" Grid.Column="1" Content="File 2 Extra Columns:" VerticalContentAlignment="Center" Visibility="Collapsed" />
+            <Label Grid.Row="2" Grid.Column="0" Content="Differences: " VerticalContentAlignment="Center" />
+            <Label Name="NoDifferencesLabel" Grid.Row="3" Grid.Column="0" Content="No differences were found!" VerticalContentAlignment="Center" Visibility="Collapsed" />
+            <DataGrid Name="DifferencesDataGrid" Grid.Row="3" Grid.Column="0" MaxHeight="300" MaxWidth="1200" Grid.ColumnSpan="2" Visibility="Collapsed" IsReadOnly="True"/>
+            <Label Name="File1ExtraRowsLabel"  Grid.Row="4" Grid.Column="0" Content="File 1 Extra Rows:" VerticalContentAlignment="Center" Visibility="Collapsed" />
+            <DataGrid Name="File1ExtraRowsGrid" Grid.Row="5" Grid.Column="0" MaxHeight="150" MaxWidth="1200" Grid.ColumnSpan="2" Visibility="Collapsed" IsReadOnly="True"/>
+            <Label Name="File2ExtraRowsLabel"  Grid.Row="6" Grid.Column="0" Content="File 2 Extra Rows" VerticalContentAlignment="Center" Visibility="Collapsed" />
+            <DataGrid Name="File2ExtraRowsGrid" Grid.Row="7" Grid.Column="0" MaxHeight="150" MaxWidth="1200" Grid.ColumnSpan="2" Visibility="Collapsed" IsReadOnly="True"/>
 
-        <Button Grid.Row="7" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="100" Height="40" Click="StartOver_Click"/>
-        <Button Grid.Row="7" Grid.Column="1" Margin="10" Content="Export Differences" VerticalContentAlignment="Center" Width="140" Height="40" Click="ExportResults_Click"/>
-    </Grid>
+            <Button Grid.Row="8" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="100" Height="40" Click="StartOver_Click"/>
+            <Button Grid.Row="8" Grid.Column="1" Margin="10" Content="Export Differences" VerticalContentAlignment="Center" Width="140" Height="40" Click="ExportResults_Click"/>
+        </Grid>
+    </ScrollViewer>
 </Window>

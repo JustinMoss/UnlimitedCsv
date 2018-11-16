@@ -36,7 +36,7 @@
         <Label Grid.Row="3" Grid.Column="0" Content="Columns to exclude from comparison:" VerticalContentAlignment="Center" HorizontalAlignment="Right"/>
         <TextBox Grid.Row="3" Grid.Column="1" Name="ColumnExclusionList" Margin="10" VerticalContentAlignment="Center" />
 
-        <Label Grid.Row="4" Grid.Column="1" Name="ErrorLabel"  Foreground="Red" VerticalContentAlignment="Center" Content=" " HorizontalAlignment="Right"/>
+        <Label Grid.Row="4" Grid.Column="1" Name="ErrorLabel"  Foreground="Red" VerticalContentAlignment="Center" Content=" " />
         
         <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="10" Content="Compare" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="100" Height="30" Click="Compare_Click"/>
     </Grid>
