@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using CsvCompare.Library;
 using Microsoft.Win32;
 
@@ -20,12 +9,15 @@ namespace CsvCompare
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SettingsWindow : Window
     {
-        public MainWindow()
+        public SettingsWindow()
         {
             InitializeComponent();
         }
+
+        public bool IsClosed { get; set; }
+        private ComparisonResultsWindow ComparisonWindow { get; set; }
 
         private void BrowseFile1_Click(object sender, RoutedEventArgs e)
         {
@@ -53,17 +45,33 @@ namespace CsvCompare
         {
             var fileName1 = File1TextBox.Text;
             var fileName2 = File2TextBox.Text;
-            var inclusionColumns = 
+            var inclusionColumns =
                 string.IsNullOrEmpty(ColumnInclusionList.Text)
                     ? null
-                    : ColumnInclusionList.Text.Split(',');
+                    : ColumnInclusionList.Text.Split(',').ToList();
             var exclusionColumns =
                 string.IsNullOrEmpty(ColumnExclusionList.Text)
                     ? null
-                    : ColumnExclusionList.Text.Split(',');
+                    : ColumnExclusionList.Text.Split(',').ToList();
 
             var comparer = new CsvComparer(fileName1, fileName2, exclusionColumns, inclusionColumns);
             var results = comparer.Compare();
+
+            if (ComparisonWindow == null)
+                ComparisonWindow = new ComparisonResultsWindow(results, this);
+            else
+                ComparisonWindow.SetResults(results);
+
+            ComparisonWindow.Show();
+
+            Hide();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            IsClosed = true;
+            if (!ComparisonWindow?.IsClosed ?? false)
+                ComparisonWindow.Close();
         }
 
         private string GetFileName()
@@ -71,7 +79,7 @@ namespace CsvCompare
             var dialog = new OpenFileDialog
             {
                 Multiselect = false,
-                Filter = "Csv Files (.csv)|*.csv"
+                Filter = "CSV Files |*.csv"
             };
 
             return dialog.ShowDialog(this) == true

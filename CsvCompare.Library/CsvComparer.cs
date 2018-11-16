@@ -1,32 +1,26 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.Data;
-using FileHelpers;
 
 namespace CsvCompare.Library
 {
     public class CsvComparer
     {
-        public CsvComparer(string file1, string file2, IEnumerable<string> excludeColumns = null, IEnumerable<string> includeColumns = null)
+        public CsvComparer(string file1, string file2, List<string> excludeColumns = null, List<string> includeColumns = null)
         {
-            DataTable1 = CsvEngine.CsvToDataTable(file1, ',');
-            DataTable2 = CsvEngine.CsvToDataTable(file2, ',');
+            DataTable1 = CsvFile.ReadFromFile(file1);
+            DataTable2 = CsvFile.ReadFromFile(file2);
 
             DataDictionary1 = new Dictionary<string, DataRow>();
             DataDictionary2 = new Dictionary<string, DataRow>();
 
-            ExcludeColumns = excludeColumns?.Select(c => c.Trim()) ?? new List<string>();
-            IncludeColumns = includeColumns?.Select(c => c.Trim()) ?? new List<string>();
+            ExcludeColumns = excludeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
+            IncludeColumns = includeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
 
-            foreach (DataRow row in DataTable1.Rows)
-                DataDictionary1.Add((string)row[0], row);
-
-            foreach (DataRow row in DataTable2.Rows)
-                DataDictionary2.Add((string)row[0], row);
+            SetupData();
         }
 
-        public CsvComparer(DataTable table1, DataTable table2, IEnumerable<string> excludeColumns = null, IEnumerable<string> includeColumns = null)
+        public CsvComparer(DataTable table1, DataTable table2, List<string> excludeColumns = null, List<string> includeColumns = null)
         {
             DataTable1 = table1;
             DataTable2 = table2;
@@ -34,14 +28,10 @@ namespace CsvCompare.Library
             DataDictionary1 = new Dictionary<string, DataRow>();
             DataDictionary2 = new Dictionary<string, DataRow>();
 
-            ExcludeColumns = excludeColumns?.Select(c => c.Trim()) ?? new List<string>();
-            IncludeColumns = includeColumns?.Select(c => c.Trim()) ?? new List<string>();
+            ExcludeColumns = excludeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
+            IncludeColumns = includeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
 
-            foreach (DataRow row in DataTable1.Rows)
-                DataDictionary1.Add((string)row[0], row);
-
-            foreach (DataRow row in DataTable2.Rows)
-                DataDictionary2.Add((string)row[0], row);
+            SetupData();
         }
 
         public DataTable DataTable1 { get; }
@@ -50,16 +40,31 @@ namespace CsvCompare.Library
         public Dictionary<string, DataRow> DataDictionary1 { get; }
         public Dictionary<string, DataRow> DataDictionary2 { get; }
 
-        public IEnumerable<string> ExcludeColumns { get; }
-        public IEnumerable<string> IncludeColumns { get; }
+        public List<string> ExcludeColumns { get; }
+        public List<string> IncludeColumns { get; }
 
-        public DataTable Compare()
+        private void SetupData()
+        {
+            foreach (var excludeColumn in ExcludeColumns)
+            {
+                DataTable1.Columns.Remove(excludeColumn);
+                DataTable2.Columns.Remove(excludeColumn);
+            }
+
+            foreach (DataRow row in DataTable1.Rows)
+                DataDictionary1.Add((string)row[0], row);
+
+            foreach (DataRow row in DataTable2.Rows)
+                DataDictionary2.Add((string)row[0], row);
+        }
+
+        public ComparisonResults Compare()
         {
             var existingColumns = new List<string>();
             var orphanColumns1 = new List<string>();
             var orphanColumns2 = new List<string>();
-            var orphanRows1 = new List<string>();
-            var orphanRows2 = new List<string>();
+            var orphanRows1 = new List<DataRow>();
+            var orphanRows2 = new List<DataRow>();
 
             // Look for orphaned columns. We can't guarantee one is a subset of the
             // other so we should loop both ways.
@@ -88,13 +93,13 @@ namespace CsvCompare.Library
                 if (DataDictionary2.ContainsKey(key1))
                     CompareRows(DataDictionary1[key1], DataDictionary2[key1], differences, existingColumns);
                 else
-                    orphanRows1.Add(key1);
+                    orphanRows1.Add(DataDictionary1[key1]);
 
             foreach (var key2 in DataDictionary2.Keys)
                 if (!DataDictionary1.ContainsKey(key2))
-                    orphanRows2.Add(key2);
+                    orphanRows2.Add(DataDictionary2[key2]);
 
-            return differences;
+            return new ComparisonResults(differences, orphanColumns1, orphanColumns2, orphanRows1, orphanRows2);
         }
 
         private void CompareRows(DataRow dataRow1, DataRow dataRow2, DataTable differences, List<string> existingColumns)
