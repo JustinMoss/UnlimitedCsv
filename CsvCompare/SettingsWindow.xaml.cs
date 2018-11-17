@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows;
@@ -68,7 +69,7 @@ namespace CsvCompare
                 var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
                 var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
 
-                var comparer = new CsvComparer(File1Data, File2Data, exclusionColumns, inclusionColumns);
+                var comparer = new CsvComparer(File1TextBox.Text, File2TextBox.Text, exclusionColumns, inclusionColumns);
                 var results = comparer.Compare();
 
                 if (ComparisonWindow == null)
@@ -98,6 +99,9 @@ namespace CsvCompare
                     ExtraOutputSelectedList.Items.Add(item);
                     ExtraOutputOptionsList.Items.Remove(item);
                 }
+
+                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                ExtraOutputSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -117,6 +121,9 @@ namespace CsvCompare
                     ExtraOutputOptionsList.Items.Add(item);
                     ExtraOutputSelectedList.Items.Remove(item);
                 }
+
+                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                ExtraOutputSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -136,6 +143,9 @@ namespace CsvCompare
                     CompareExcludeSelectedList.Items.Add(item);
                     CompareExcludeOptionsList.Items.Remove(item);
                 }
+
+                CompareExcludeSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -155,6 +165,9 @@ namespace CsvCompare
                     CompareExcludeOptionsList.Items.Add(item);
                     CompareExcludeSelectedList.Items.Remove(item);
                 }
+
+                CompareExcludeSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -262,6 +275,9 @@ namespace CsvCompare
                 ExtraOutputOptionsList.Items.Add(column);
                 CompareExcludeOptionsList.Items.Add(column);
             }
+
+            ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+            CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
 
             CompareButton.Visibility = Visibility.Visible;
             ExclusionInclusionGrid.Visibility = Visibility.Visible;

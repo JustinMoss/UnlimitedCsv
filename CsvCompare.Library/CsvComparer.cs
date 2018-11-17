@@ -20,20 +20,6 @@ namespace CsvCompare.Library
             SetupData();
         }
 
-        public CsvComparer(DataTable table1, DataTable table2, List<string> excludeColumns = null, List<string> includeColumns = null)
-        {
-            DataTable1 = table1;
-            DataTable2 = table2;
-
-            DataDictionary1 = new Dictionary<string, DataRow>();
-            DataDictionary2 = new Dictionary<string, DataRow>();
-
-            ExcludeColumns = excludeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
-            IncludeColumns = includeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
-
-            SetupData();
-        }
-
         public DataTable DataTable1 { get; }
         public DataTable DataTable2 { get; }
 

@@ -67,7 +67,7 @@
                 <ListBox Grid.Row="1" Grid.Column="2" MaxHeight="150" Name="ExtraOutputSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
 
                 <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Compare Exclude Columns:" VerticalContentAlignment="Center" />
-                <ListBox Grid.Row="3" Grid.Column="0" MaxHeight="150" Name="CompareExcludeOptionsList" SelectionMode="Multiple" HorizontalAlignment="Stretch" />
+                <ListBox Grid.Row="3" Grid.Column="0" MaxHeight="150" Name="CompareExcludeOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
                 <Grid Grid.Row="3" Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -79,7 +79,7 @@
                     <Button Name="AddCompareExcludeButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="80" Height="30" Content="Add --&gt;" Click="AddCompareExcludeButton_Click"></Button>
                     <Button Name="RemoveCompareExcludeButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="80" Height="30" Content="&lt;-- Remove" Click="RemoveCompareExcludeButton_Click"></Button>
                 </Grid>
-                <ListBox Grid.Row="3" Grid.Column="2" MaxHeight="150" Name="CompareExcludeSelectedList" SelectionMode="Multiple" HorizontalAlignment="Stretch" />
+                <ListBox Grid.Row="3" Grid.Column="2" MaxHeight="150" Name="CompareExcludeSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
             </Grid>
 
             <Label Name="ErrorLabel"  Grid.Row="2" Grid.Column="0" Foreground="Red" VerticalContentAlignment="Center" />
