@@ -2,18 +2,29 @@
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using FileHelpers;
 
 namespace CsvCompare.Library
 {
     public class CsvFile
     {
+        public static  Task<DataTable> ReadFromFileAsync(string file)
+        {
+            return Task.Factory.StartNew(() => ReadFromFile(file));
+        }
+
         public static DataTable ReadFromFile(string file)
         {
             return CsvEngine.CsvToDataTable(file, ',');
         }
 
-        public static void WriteToFile(string filename, ComparisonResults results)
+        public static Task<bool> WriteToFileAsync(string filename, ComparisonResults results)
+        {
+            return Task.Factory.StartNew(() => WriteToFile(filename, results));
+        }
+
+        public static bool WriteToFile(string filename, ComparisonResults results)
         {
             CsvEngine.DataTableToCsv(results.Differences, filename);
 
@@ -90,6 +101,8 @@ namespace CsvCompare.Library
             }
 
             File.WriteAllText(filename, builder.ToString());
+
+            return true;
         }
     }
 }

@@ -51,21 +51,25 @@ namespace CsvCompare
             }
         }
 
-        private void ExportResults_Click(object sender, RoutedEventArgs e)
+        private async void ExportResults_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 ClearErrors();
+                DisableButtons();
 
                 var saveFileName = GetSaveFileName();
 
                 if (saveFileName == null)
                     return; //TODO: throw some error
 
-                CsvFile.WriteToFile(saveFileName, Results);
+                await CsvFile.WriteToFileAsync(saveFileName, Results);
+
+                EnableButtons();
             }
             catch (Exception ex)
             {
+                EnableButtons();
                 ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
                 ErrorLabel.Visibility = Visibility.Visible;
             }
@@ -182,6 +186,18 @@ namespace CsvCompare
             return dialog.ShowDialog(this) == true
                 ? dialog.FileName
                 : null;
+        }
+
+        private void EnableButtons()
+        {
+            StartOverButton.IsEnabled = true;
+            ExportResultButton.IsEnabled = true;
+        }
+
+        private void DisableButtons()
+        {
+            StartOverButton.IsEnabled = false;
+            ExportResultButton.IsEnabled = false;
         }
 
         private void ClearErrors()

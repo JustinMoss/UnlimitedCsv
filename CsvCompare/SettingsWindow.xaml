@@ -31,11 +31,11 @@
 
                 <Label Grid.Row="0" Grid.Column="0" Content="File 1:" VerticalContentAlignment="Center" />
                 <TextBox Name="File1TextBox" Margin="10" Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center" TextChanged="File1TextBox_TextChanged" />
-                <Button Grid.Row="0" Margin="10" Grid.Column="2" Content="Browse..." Width="80" VerticalContentAlignment="Center" Click="BrowseFile1_Click"/>
+                <Button Name="BrowseFile1Button" Grid.Row="0" Margin="10" Grid.Column="2" Content="Browse..." Width="80" VerticalContentAlignment="Center" Click="BrowseFile1_Click"/>
 
                 <Label Grid.Row="1" Grid.Column="0" Content="File 2:" VerticalContentAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Name="File2TextBox" Margin="10" VerticalContentAlignment="Center" TextChanged="File2TextBox_TextChanged" />
-                <Button Grid.Row="1" Margin="10" Grid.Column="2" Content="Browse..." Width="80" VerticalContentAlignment="Center" Click="BrowseFile2_Click"/>
+                <Button Name="BrowseFile2Button" Grid.Row="1" Margin="10" Grid.Column="2" Content="Browse..." Width="80" VerticalContentAlignment="Center" Click="BrowseFile2_Click"/>
             </Grid>
 
             <Grid Name="ExclusionInclusionGrid" Grid.Row="1" Grid.Column="0" Visibility="Collapsed">

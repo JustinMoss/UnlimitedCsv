@@ -34,8 +34,8 @@
             <Label Name="File2ExtraRowsLabel"  Grid.Row="6" Grid.Column="0" Content="File 2 Extra Rows" VerticalContentAlignment="Center" Visibility="Collapsed" />
             <DataGrid Name="File2ExtraRowsGrid" Grid.Row="7" Grid.Column="0" MaxHeight="150" MaxWidth="1200" Grid.ColumnSpan="2" Visibility="Collapsed" IsReadOnly="True"/>
 
-            <Button Grid.Row="8" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="100" Height="40" Click="StartOver_Click"/>
-            <Button Grid.Row="8" Grid.Column="1" Margin="10" Content="Export Differences" VerticalContentAlignment="Center" Width="140" Height="40" Click="ExportResults_Click"/>
+            <Button Name="StartOverButton" Grid.Row="8" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="100" Height="40" Click="StartOver_Click"/>
+            <Button Name="ExportResultButton" Grid.Row="8" Grid.Column="1" Margin="10" Content="Export Differences" VerticalContentAlignment="Center" Width="140" Height="40" Click="ExportResults_Click"/>
         </Grid>
     </ScrollViewer>
 </Window>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using CsvCompare.Library;
 using Microsoft.Win32;
@@ -60,17 +61,17 @@ namespace CsvCompare
             }
         }
 
-        private void Compare_Click(object sender, RoutedEventArgs e)
+        private async void Compare_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 ClearErrors();
+                DisableButtons();
 
                 var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
                 var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
 
-                var comparer = new CsvComparer(File1TextBox.Text, File2TextBox.Text, exclusionColumns, inclusionColumns);
-                var results = comparer.Compare();
+                var results = await GetComparisonResultsAsync(File1TextBox.Text, File2TextBox.Text, inclusionColumns, exclusionColumns);
 
                 if (ComparisonWindow == null)
                     ComparisonWindow = new ComparisonResultsWindow(results, this);
@@ -79,10 +80,12 @@ namespace CsvCompare
 
                 ComparisonWindow.Show();
 
+                EnableButtons();
                 Hide();
             }
             catch (Exception ex)
             {
+                EnableButtons();
                 ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
             }
         }
@@ -175,44 +178,48 @@ namespace CsvCompare
             }
         }
 
-        private void File1TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private async void File1TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             try
             {
                 ClearErrors();
+                DisableButtons();
 
-                File1Data = CsvFile.ReadFromFile(File1TextBox.Text);
+                File1Data = await CsvFile.ReadFromFileAsync(File1TextBox.Text);
 
-                if (File2Data == null)
-                    return;
+                if (File2Data != null)
+                    SetInclusionExclusionOptions();
 
-                SetInclusionExclusionOptions();
+                EnableButtons();
             }
             catch (Exception ex)
             {
                 File1Data = null;
+                EnableButtons();
                 ExclusionInclusionGrid.Visibility = Visibility.Collapsed;
                 CompareButton.Visibility = Visibility.Collapsed;
                 ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
             }
         }
 
-        private void File2TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private async void File2TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             try
             {
                 ClearErrors();
+                DisableButtons();
 
-                File2Data = CsvFile.ReadFromFile(File2TextBox.Text);
+                File2Data = await CsvFile.ReadFromFileAsync(File2TextBox.Text);
 
-                if (File1Data == null)
-                    return;
+                if (File1Data != null)
+                    SetInclusionExclusionOptions();
 
-                SetInclusionExclusionOptions();
+                EnableButtons();
             }
             catch (Exception ex)
             {
                 File2Data = null;
+                EnableButtons();
                 ExclusionInclusionGrid.Visibility = Visibility.Collapsed;
                 CompareButton.Visibility = Visibility.Collapsed;
                 ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
@@ -281,6 +288,34 @@ namespace CsvCompare
 
             CompareButton.Visibility = Visibility.Visible;
             ExclusionInclusionGrid.Visibility = Visibility.Visible;
+        }
+
+        private Task<ComparisonResults> GetComparisonResultsAsync(string file1, string file2, List<string> inclusionColumns, List<string> exclusionColumns)
+        {
+            return Task.Factory.StartNew(()
+                => new CsvComparer(file1, file2, exclusionColumns, inclusionColumns).Compare());
+        }
+
+        private void EnableButtons()
+        {
+            CompareButton.IsEnabled = true;
+            AddCompareExcludeButton.IsEnabled = true;
+            RemoveCompareExcludeButton.IsEnabled = true;
+            AddExtraOutputButton.IsEnabled = true;
+            RemoveExtraOutputButton.IsEnabled = true;
+            BrowseFile1Button.IsEnabled = true;
+            BrowseFile2Button.IsEnabled = true;
+        }
+
+        private void DisableButtons()
+        {
+            CompareButton.IsEnabled = false;
+            AddCompareExcludeButton.IsEnabled = false;
+            RemoveCompareExcludeButton.IsEnabled = false;
+            AddExtraOutputButton.IsEnabled = false;
+            RemoveExtraOutputButton.IsEnabled = false;
+            BrowseFile1Button.IsEnabled = false;
+            BrowseFile2Button.IsEnabled = false;
         }
 
         private void ClearErrors()
