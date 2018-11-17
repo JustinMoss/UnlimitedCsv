@@ -5,39 +5,87 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CsvCompare"
         mc:Ignorable="d"
-        Title="CSV Compare" Height="300" Width="800" Closed="Window_Closed">
-    <Grid VerticalAlignment="Top">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+        Title="CSV Compare" Height="750" Width="1300" Closed="Window_Closed">
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="0" Grid.Column="0" Content="File 1:" VerticalContentAlignment="Center" HorizontalAlignment="Right"/>
-        <TextBox Name="File1TextBox" Margin="10" Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center" />
-        <Button Grid.Row="0" Margin="10" Grid.Column="2" Content="Browse..." VerticalContentAlignment="Center" Click="BrowseFile1_Click"/>
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="1" Grid.Column="0" Content="File 2:" VerticalContentAlignment="Center" HorizontalAlignment="Right"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Name="File2TextBox" Margin="10" VerticalContentAlignment="Center" />
-        <Button Grid.Row="1" Margin="10" Grid.Column="2" Content="Browse..." VerticalContentAlignment="Center" Click="BrowseFile2_Click"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="File 1:" VerticalContentAlignment="Center" />
+                <TextBox Name="File1TextBox" Margin="10" Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center" TextChanged="File1TextBox_TextChanged" />
+                <Button Grid.Row="0" Margin="10" Grid.Column="2" Content="Browse..." Width="80" VerticalContentAlignment="Center" Click="BrowseFile1_Click"/>
 
-        <Label Grid.Row="2" Grid.Column="0" Content="Columns to include in ouput:" VerticalContentAlignment="Center" HorizontalAlignment="Right"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Name="ColumnInclusionList" Margin="10" VerticalContentAlignment="Center" />
+                <Label Grid.Row="1" Grid.Column="0" Content="File 2:" VerticalContentAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Name="File2TextBox" Margin="10" VerticalContentAlignment="Center" TextChanged="File2TextBox_TextChanged" />
+                <Button Grid.Row="1" Margin="10" Grid.Column="2" Content="Browse..." Width="80" VerticalContentAlignment="Center" Click="BrowseFile2_Click"/>
+            </Grid>
 
-        <Label Grid.Row="3" Grid.Column="0" Content="Columns to exclude from comparison:" VerticalContentAlignment="Center" HorizontalAlignment="Right"/>
-        <TextBox Grid.Row="3" Grid.Column="1" Name="ColumnExclusionList" Margin="10" VerticalContentAlignment="Center" />
+            <Grid Name="ExclusionInclusionGrid" Grid.Row="1" Grid.Column="0" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="4" Grid.Column="1" Name="ErrorLabel"  Foreground="Red" VerticalContentAlignment="Center" Content=" " />
-        
-        <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="10" Content="Compare" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="100" Height="30" Click="Compare_Click"/>
-    </Grid>
+                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Extra Output Columns:" VerticalContentAlignment="Center" />
+                <ListBox Grid.Row="1" Grid.Column="0" MaxHeight="150" Name="ExtraOutputOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Name="AddExtraOutputButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="80" Height="30" Content="Add --&gt;" Click="AddExtraOutputButton_Click"></Button>
+                    <Button Name="RemoveExtraOutputButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="80" Height="30" Content="&lt;-- Remove" Click="RemoveExtraOutputButton_Click"></Button>
+                </Grid>
+                <ListBox Grid.Row="1" Grid.Column="2" MaxHeight="150" Name="ExtraOutputSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+
+                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Compare Exclude Columns:" VerticalContentAlignment="Center" />
+                <ListBox Grid.Row="3" Grid.Column="0" MaxHeight="150" Name="CompareExcludeOptionsList" SelectionMode="Multiple" HorizontalAlignment="Stretch" />
+                <Grid Grid.Row="3" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Name="AddCompareExcludeButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="80" Height="30" Content="Add --&gt;" Click="AddCompareExcludeButton_Click"></Button>
+                    <Button Name="RemoveCompareExcludeButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="80" Height="30" Content="&lt;-- Remove" Click="RemoveCompareExcludeButton_Click"></Button>
+                </Grid>
+                <ListBox Grid.Row="3" Grid.Column="2" MaxHeight="150" Name="CompareExcludeSelectedList" SelectionMode="Multiple" HorizontalAlignment="Stretch" />
+            </Grid>
+
+            <Label Name="ErrorLabel"  Grid.Row="2" Grid.Column="0" Foreground="Red" VerticalContentAlignment="Center" />
+
+            <Button Name="CompareButton" Grid.Row="3" Grid.Column="0" Margin="10" Content="Compare" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="150" Height="50" Visibility="Collapsed" Click="Compare_Click"/>
+
+        </Grid>
+    </ScrollViewer>
 </Window>
