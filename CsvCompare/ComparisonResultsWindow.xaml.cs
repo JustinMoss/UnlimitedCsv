@@ -63,7 +63,7 @@ namespace CsvCompare
                 if (saveFileName == null)
                     return; //TODO: throw some error
 
-                await CsvFile.WriteToFileAsync(saveFileName, Results);
+                await CsvFile.ComparisonResultsToCsvFileAsync(saveFileName, Results);
 
                 EnableButtons();
             }

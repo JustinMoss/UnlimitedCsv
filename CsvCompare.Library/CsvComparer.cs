@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 
 namespace CsvCompare.Library
@@ -8,14 +7,14 @@ namespace CsvCompare.Library
     {
         public CsvComparer(string file1, string file2, List<string> excludeColumns = null, List<string> includeColumns = null)
         {
-            DataTable1 = CsvFile.ReadFromFile(file1);
-            DataTable2 = CsvFile.ReadFromFile(file2);
+            DataTable1 = CsvFile.DataTableFromCsvFile(file1);
+            DataTable2 = CsvFile.DataTableFromCsvFile(file2);
 
             DataDictionary1 = new Dictionary<string, DataRow>();
             DataDictionary2 = new Dictionary<string, DataRow>();
 
-            ExcludeColumns = excludeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
-            IncludeColumns = includeColumns?.Select(c => c.Trim().Replace(' ', '_')).ToList() ?? new List<string>();
+            ExcludeColumns = excludeColumns ?? new List<string>();
+            IncludeColumns = includeColumns ?? new List<string>();
 
             SetupData();
         }
@@ -92,8 +91,8 @@ namespace CsvCompare.Library
         {
             foreach (var column in existingColumns)
             {
-                var value1 = (string)dataRow1[column];
-                var value2 = (string)dataRow2[column];
+                var value1 = dataRow1[column] as string;
+                var value2 = dataRow2[column] as string;
                 if (value1 == value2)
                     continue;
 

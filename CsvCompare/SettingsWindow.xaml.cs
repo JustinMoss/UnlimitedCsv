@@ -185,7 +185,7 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File1Data = await CsvFile.ReadFromFileAsync(File1TextBox.Text);
+                File1Data = await CsvFile.DataTableFromCsvFileAsync(File1TextBox.Text);
 
                 if (File2Data != null)
                     SetInclusionExclusionOptions();
@@ -209,7 +209,7 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File2Data = await CsvFile.ReadFromFileAsync(File2TextBox.Text);
+                File2Data = await CsvFile.DataTableFromCsvFileAsync(File2TextBox.Text);
 
                 if (File1Data != null)
                     SetInclusionExclusionOptions();

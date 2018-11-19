@@ -4,8 +4,4 @@
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="FileHelpers" Version="3.3.0" />
-  </ItemGroup>
-
 </Project>
