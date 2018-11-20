@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace CsvCompare.Library
 {
     public class CsvComparer
     {
-        public CsvComparer(string file1, string file2, List<string> excludeColumns = null, List<string> includeColumns = null)
+        public CsvComparer(DataTable dataTable1, DataTable dataTable2, List<string> excludeColumns = null, List<string> includeColumns = null)
         {
-            DataTable1 = CsvFile.DataTableFromCsvFile(file1);
-            DataTable2 = CsvFile.DataTableFromCsvFile(file2);
+            DataTable1 = dataTable1.Copy();
+            DataTable2 = dataTable2.Copy();
 
             DataDictionary1 = new Dictionary<string, DataRow>();
             DataDictionary2 = new Dictionary<string, DataRow>();
@@ -42,6 +43,12 @@ namespace CsvCompare.Library
             foreach (DataRow row in DataTable2.Rows)
                 DataDictionary2.Add((string)row[0], row);
         }
+
+        public Task<ComparisonResults> CompareAsync()
+        {
+            return Task.Run(() => Compare());
+        }
+
 
         public ComparisonResults Compare()
         {

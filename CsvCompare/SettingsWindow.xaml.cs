@@ -71,7 +71,7 @@ namespace CsvCompare
                 var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
                 var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
 
-                var results = await GetComparisonResultsAsync(File1TextBox.Text, File2TextBox.Text, inclusionColumns, exclusionColumns);
+                var results = await GetComparisonResultsAsync(inclusionColumns, exclusionColumns);
 
                 if (ComparisonWindow == null)
                     ComparisonWindow = new ComparisonResultsWindow(results, this);
@@ -185,7 +185,7 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File1Data = await CsvFile.DataTableFromCsvFileAsync(File1TextBox.Text);
+                File1Data = await CsvParser.DataTableFromCsvFileAsync(File1TextBox.Text);
 
                 if (File2Data != null)
                     SetInclusionExclusionOptions();
@@ -209,7 +209,7 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File2Data = await CsvFile.DataTableFromCsvFileAsync(File2TextBox.Text);
+                File2Data = await CsvParser.DataTableFromCsvFileAsync(File2TextBox.Text);
 
                 if (File1Data != null)
                     SetInclusionExclusionOptions();
@@ -290,10 +290,9 @@ namespace CsvCompare
             ExclusionInclusionGrid.Visibility = Visibility.Visible;
         }
 
-        private Task<ComparisonResults> GetComparisonResultsAsync(string file1, string file2, List<string> inclusionColumns, List<string> exclusionColumns)
+        private Task<ComparisonResults> GetComparisonResultsAsync(List<string> inclusionColumns, List<string> exclusionColumns)
         {
-            return Task.Factory.StartNew(()
-                => new CsvComparer(file1, file2, exclusionColumns, inclusionColumns).Compare());
+            return new CsvComparer(File1Data, File2Data, exclusionColumns, inclusionColumns).CompareAsync();
         }
 
         private void EnableButtons()
