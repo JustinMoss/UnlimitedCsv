@@ -102,35 +102,23 @@ namespace CsvCompare
 
                 if (Results.Differences.Rows.Count > 0)
                 {
-                    NoDifferencesLabel.Visibility = Visibility.Collapsed;
+                    DifferencesLabel.Content = "Differences:";
                     DifferencesDataGrid.ItemsSource = Results.Differences.DefaultView;
                     DifferencesDataGrid.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    NoDifferencesLabel.Visibility = Visibility.Visible;
+                    DifferencesLabel.Content = "Differences: None";
                     DifferencesDataGrid.Visibility = Visibility.Collapsed;
                 }
 
-                if (results.OrphanColumns1?.Count > 0)
-                {
-                    File1OrphansLabel.Content = $"File 1 Extra Columns: {string.Join(", ", results.OrphanColumns1)}";
-                    File1OrphansLabel.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    File1OrphansLabel.Visibility = Visibility.Collapsed;
-                }
+                File1OrphansLabel.Content = results.OrphanColumns1?.Count > 0 
+                    ? $"File 1 Extra Columns: {string.Join(", ", results.OrphanColumns1)}" 
+                    : "File 1 Extra Columns: None";
 
-                if (results.OrphanColumns2?.Count > 0)
-                {
-                    File2OrphansLabel.Content = $"File 2 Extra Columns: {string.Join(", ", results.OrphanColumns2)}";
-                    File2OrphansLabel.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    File2OrphansLabel.Visibility = Visibility.Collapsed;
-                }
+                File2OrphansLabel.Content = results.OrphanColumns2?.Count > 0 
+                    ? $"File 2 Extra Columns: {string.Join(", ", results.OrphanColumns2)}" 
+                    : "File 2 Extra Columns: None";
 
                 if (results.OrphanRows1?.Count > 0)
                 {
@@ -142,12 +130,12 @@ namespace CsvCompare
 
                     File1ExtraRowsGrid.ItemsSource = table.DefaultView;
 
-                    File1ExtraRowsLabel.Visibility = Visibility.Visible;
+                    File1ExtraRowsLabel.Content = "File 1 Extra Rows:";
                     File1ExtraRowsGrid.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    File1ExtraRowsLabel.Visibility = Visibility.Collapsed;
+                    File1ExtraRowsLabel.Content = "File 1 Extra Rows: None";
                     File1ExtraRowsGrid.Visibility = Visibility.Collapsed;
                 }
 
@@ -160,12 +148,13 @@ namespace CsvCompare
                         table.ImportRow(dataRow);
 
                     File2ExtraRowsGrid.ItemsSource = table.DefaultView;
-                    File2ExtraRowsLabel.Visibility = Visibility.Visible;
+
+                    File2ExtraRowsLabel.Content = "File 2 Extra Rows:";
                     File2ExtraRowsGrid.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    File2ExtraRowsLabel.Visibility = Visibility.Collapsed;
+                    File2ExtraRowsLabel.Content = "File 2 Extra Rows: None";
                     File2ExtraRowsGrid.Visibility = Visibility.Collapsed;
                 }
             }
