@@ -101,9 +101,9 @@ namespace CsvCompare
                 {
                     ExtraOutputSelectedList.Items.Add(item);
                     ExtraOutputOptionsList.Items.Remove(item);
+                    CompareExcludeOptionsList.Items.Remove(item);
                 }
 
-                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
                 ExtraOutputSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
@@ -121,12 +121,13 @@ namespace CsvCompare
                 var items = ExtraOutputSelectedList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
+                    CompareExcludeOptionsList.Items.Add(item);
                     ExtraOutputOptionsList.Items.Add(item);
                     ExtraOutputSelectedList.Items.Remove(item);
                 }
 
                 ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-                ExtraOutputSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -145,10 +146,10 @@ namespace CsvCompare
                 {
                     CompareExcludeSelectedList.Items.Add(item);
                     CompareExcludeOptionsList.Items.Remove(item);
+                    ExtraOutputOptionsList.Items.Remove(item);
                 }
 
                 CompareExcludeSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -165,11 +166,12 @@ namespace CsvCompare
                 var items = CompareExcludeSelectedList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
+                    ExtraOutputOptionsList.Items.Add(item);
                     CompareExcludeOptionsList.Items.Add(item);
                     CompareExcludeSelectedList.Items.Remove(item);
                 }
 
-                CompareExcludeSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
                 CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
