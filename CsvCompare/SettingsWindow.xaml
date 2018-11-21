@@ -85,7 +85,6 @@
             <Label Name="ErrorLabel"  Grid.Row="2" Grid.Column="0" Foreground="Red" VerticalContentAlignment="Center" />
 
             <Button Name="CompareButton" Grid.Row="3" Grid.Column="0" Margin="10" Content="Compare" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="150" Height="50" Visibility="Collapsed" Click="Compare_Click"/>
-
         </Grid>
     </ScrollViewer>
 </Window>
