@@ -22,20 +22,28 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Row="0" Grid.Column="0" Name="ErrorLabel"  Foreground="Red" Margin="0 0 0 10" VerticalContentAlignment="Center"  HorizontalAlignment="Right" Visibility="Collapsed"/>
             <Label Name="DifferencesLabel" Grid.Row="1" Grid.Column="0" Content="Differences:" VerticalContentAlignment="Center" />
-            <DataGrid Name="DifferencesDataGrid" Grid.Row="2" Grid.Column="0" MaxHeight="300" MaxWidth="1500" Grid.ColumnSpan="2" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
+            <DataGrid Name="DifferencesDataGrid" Grid.Row="2" Grid.Column="0" MaxHeight="300" MaxWidth="1500" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
             <Label Name="File1ExtraRowsLabel"  Grid.Row="3" Grid.Column="0" Margin="0 10 0 0" Content="File 1 Extra Rows:" VerticalContentAlignment="Center" />
-            <DataGrid Name="File1ExtraRowsGrid" Grid.Row="4" Grid.Column="0" MaxHeight="150" MaxWidth="1500" Grid.ColumnSpan="2" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
+            <DataGrid Name="File1ExtraRowsGrid" Grid.Row="4" Grid.Column="0" MaxHeight="150" MaxWidth="1500" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
             <Label Name="File2ExtraRowsLabel"  Grid.Row="5" Grid.Column="0" Margin="0 10 0 0" Content="File 2 Extra Rows:" VerticalContentAlignment="Center" />
-            <DataGrid Name="File2ExtraRowsGrid" Grid.Row="6" Grid.Column="0" MaxHeight="150" MaxWidth="1500" Grid.ColumnSpan="2" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
-            <Label Name="File1OrphansLabel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 10 0 0" Content="File 1 Extra Columns:" VerticalContentAlignment="Center" />
-            <Label Name="File2OrphansLabel" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 10 0 0"  Content="File 2 Extra Columns:" VerticalContentAlignment="Center" />
+            <DataGrid Name="File2ExtraRowsGrid" Grid.Row="6" Grid.Column="0" MaxHeight="150" MaxWidth="1500" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
+            <Label Name="File1OrphansLabel" Grid.Row="7" Grid.Column="0" Margin="0 10 0 0" Content="File 1 Extra Columns:" VerticalContentAlignment="Center" />
+            <Label Name="File2OrphansLabel" Grid.Row="8" Grid.Column="0" Margin="0 10 0 0"  Content="File 2 Extra Columns:" VerticalContentAlignment="Center" />
 
-            <Button Name="StartOverButton" Grid.Row="9" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="120" Height="50" Click="StartOver_Click"/>
-            <Button Name="ExportResultButton" Grid.Row="9" Grid.Column="1" Margin="10" Content="Export Differences" VerticalContentAlignment="Center" Width="180" Height="50" Click="ExportResults_Click"/>
+            <Grid Grid.Row="9" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Name="StartOverButton" Grid.Row="0" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="120" Height="50" Click="StartOver_Click"/>
+                <Button Name="ExportResultButton" Grid.Row="0" Grid.Column="1" Margin="10" Content="Export Differences" VerticalContentAlignment="Center" Width="180" Height="50" Click="ExportResults_Click"/>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </Window>
