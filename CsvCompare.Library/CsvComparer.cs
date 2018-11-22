@@ -6,7 +6,7 @@ namespace CsvCompare.Library
 {
     public class CsvComparer
     {
-        public CsvComparer(DataTable dataTable1, DataTable dataTable2, List<string> excludeColumns = null, List<string> includeColumns = null)
+        public CsvComparer(DataTable dataTable1, DataTable dataTable2, IEnumerable<string> excludeColumns = null, IEnumerable<string> includeColumns = null)
         {
             DataTable1 = dataTable1.Copy();
             DataTable2 = dataTable2.Copy();
@@ -26,8 +26,8 @@ namespace CsvCompare.Library
         public Dictionary<string, DataRow> DataDictionary1 { get; }
         public Dictionary<string, DataRow> DataDictionary2 { get; }
 
-        public List<string> ExcludeColumns { get; }
-        public List<string> IncludeColumns { get; }
+        public IEnumerable<string> ExcludeColumns { get; }
+        public IEnumerable<string> IncludeColumns { get; }
 
         private void SetupData()
         {
@@ -45,10 +45,7 @@ namespace CsvCompare.Library
         }
 
         public Task<ComparisonResults> CompareAsync()
-        {
-            return Task.Run(() => Compare());
-        }
-
+            => Task.Run(() => Compare());
 
         public ComparisonResults Compare()
         {
@@ -58,8 +55,6 @@ namespace CsvCompare.Library
             var orphanRows1 = new List<DataRow>();
             var orphanRows2 = new List<DataRow>();
 
-            // Look for orphaned columns. We can't guarantee one is a subset of the
-            // other so we should loop both ways.
             foreach (DataColumn column in DataTable1.Columns)
                 if (!DataTable2.Columns.Contains(column.ColumnName))
                     orphanColumns1.Add(column.ColumnName);
@@ -91,7 +86,7 @@ namespace CsvCompare.Library
                 if (!DataDictionary1.ContainsKey(key2))
                     orphanRows2.Add(DataDictionary2[key2]);
 
-            return new ComparisonResults(differences, orphanColumns1, orphanColumns2, orphanRows1, orphanRows2);
+            return new ComparisonResults(differences, existingColumns, orphanColumns1, orphanColumns2, orphanRows1, orphanRows2);
         }
 
         private void CompareRows(DataRow dataRow1, DataRow dataRow2, DataTable differences, List<string> existingColumns)

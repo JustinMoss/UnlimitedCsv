@@ -68,8 +68,8 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
-                var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
+                var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>();
+                var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>();
 
                 var results = await GetComparisonResultsAsync(inclusionColumns, exclusionColumns);
 
@@ -187,7 +187,7 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File1Data = await CsvParser.DataTableFromCsvFileAsync(File1TextBox.Text);
+                File1Data = await CsvReader.ReadFileToDataTableAsync(File1TextBox.Text);
 
                 if (File2Data != null)
                     SetInclusionExclusionOptions();
@@ -211,7 +211,7 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File2Data = await CsvParser.DataTableFromCsvFileAsync(File2TextBox.Text);
+                File2Data = await CsvReader.ReadFileToDataTableAsync(File2TextBox.Text);
 
                 if (File1Data != null)
                     SetInclusionExclusionOptions();
@@ -292,7 +292,7 @@ namespace CsvCompare
             ExclusionInclusionGrid.Visibility = Visibility.Visible;
         }
 
-        private Task<ComparisonResults> GetComparisonResultsAsync(List<string> inclusionColumns, List<string> exclusionColumns)
+        private Task<ComparisonResults> GetComparisonResultsAsync(IEnumerable<string> inclusionColumns, IEnumerable<string> exclusionColumns)
         {
             return new CsvComparer(File1Data, File2Data, exclusionColumns, inclusionColumns).CompareAsync();
         }

@@ -1,149 +1,213 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using CsvHelper;
 
 namespace CsvCompare.Library
 {
     public class CsvParser
     {
-        public static async Task<DataTable> DataTableFromCsvFileAsync(string file)
-        {
-            using (var reader = new StreamReader(file))
-                return DataTableFromStringList(await GetListFromStream(reader));
-        }
+        public const int BackslashNCode = 10;
+        public const int BackslashRCode = 13;
+        public const int QuoteCode = 34;
+        public const int CommaCode = 44;
 
-        private static async Task<DataTable> DataTableFromCsvStringAsync(string csv)
+        public static DataTable CreateDataTableFromReader(TextReader reader)
         {
-            using (var reader = new StringReader(csv))
-                return DataTableFromStringList(await GetListFromStream(reader));
-        }
+            var parseTokens = ParseCsvToTokens(reader);
+            var enumerator = parseTokens.GetEnumerator();
 
-        private static async Task<List<List<string>>> GetListFromStream(TextReader reader)
-        {
-            var rows = new List<List<string>>();
-            var parser = new CsvHelper.CsvParser(reader);
-            while (true)
-            {
-                var row = await parser.ReadAsync();
-                if (row == null)
-                    break;
-                rows.Add(row.ToList());
-            }
-
-            return rows;
-        }
-
-        public static DataTable DataTableFromStringList(List<List<string>> rows)
-        {
-            var headerColumns = rows[0];
+            var columnNames = GetNextLine(enumerator);
 
             var dataTable = new DataTable();
-            foreach (var headerColumn in headerColumns)
-                dataTable.Columns.Add(headerColumn);
+            foreach (var columnName in columnNames)
+                dataTable.Columns.Add(columnName);
 
-            for (var i = 1; i < rows.Count; i++)
+            IList<string> row;
+            while ((row = GetNextLine(enumerator)) != null)
             {
-                var columns = rows[i].ToList();
-
                 var dataRow = dataTable.NewRow();
-                for (var j = 0; j < columns.Count; j++)
-                    dataRow[j] = columns[j];
-
+                for (var i = 0; i < row.Count; i++)
+                    dataRow[i] = row[i];
                 dataTable.Rows.Add(dataRow);
             }
 
             return dataTable;
         }
 
-        public static async Task ComparisonResultsToCsvFileAsync(string filename, ComparisonResults results)
+        public static IEnumerable<IEnumerable<string>> BuildResultsEnumerable(ComparisonResults results)
         {
-            var rows = ComparisonResultsToStringList(results);
+            yield return GetHardCodedEnumerable("Differences:");
+            foreach (var difference in BuildDifferences(results))
+                yield return difference;
 
-            using (var writer = new StreamWriter(filename))
-                await SendListToStream(rows, writer);
-        }
-
-        public static async Task<string> ComparisonResultsToCsvStringAsync(ComparisonResults results)
-        {
-            var rows = ComparisonResultsToStringList(results);
-
-            var builder = new StringBuilder();
-            using (var writer = new StringWriter(builder))
-                await SendListToStream(rows, writer);
-
-            return builder.ToString();
-        }
-
-        private static async Task SendListToStream(List<List<string>> rows, TextWriter writer)
-        {
-            var csvWriter = new CsvWriter(writer);
-            foreach (var row in rows)
-            {
-                foreach (var column in row)
-                {
-                    csvWriter.WriteField(column);
-                }
-                await csvWriter.NextRecordAsync();
-            }
-        }
-
-        public static List<List<string>> ComparisonResultsToStringList(ComparisonResults results)
-        {
-            var rowValuesList = new List<List<string>>();
-
-            rowValuesList.Add(new List<string> { "Differences" });
-            BuildDifferences(results, rowValuesList);
-            rowValuesList.Add(new List<string>());
+            yield return null;
 
             if (results.OrphanColumns1?.Count > 0)
             {
-                rowValuesList.Add(new List<string> { "File 1 Extra Columns:", string.Join(", ", results.OrphanColumns1) });
-                rowValuesList.Add(new List<string>());
+                yield return GetHardCodedEnumerable("File 1 Extra Columns:", string.Join(", ", results.OrphanColumns1));
+                yield return null;
             }
 
             if (results.OrphanColumns2?.Count > 0)
             {
-                rowValuesList.Add(new List<string> { "File 2 Extra Columns:", string.Join(", ", results.OrphanColumns2) });
-                rowValuesList.Add(new List<string>());
+                yield return GetHardCodedEnumerable("File 2 Extra Columns:", string.Join(", ", results.OrphanColumns2));
+                yield return null;
             }
 
             if (results.OrphanRows1?.Count > 0)
             {
-                rowValuesList.Add(new List<string> { "File 1 Extra Rows:" });
-                BuildOrphanRows(results.OrphanRows1, rowValuesList);
-                rowValuesList.Add(new List<string>());
+                yield return GetHardCodedEnumerable("File 1 Extra Rows:");
+                yield return results.CommonColumns;
+                foreach (var orphanRow in BuildOrphanRows(results.OrphanRows1))
+                    yield return orphanRow;
+                yield return null;
             }
 
             if (results.OrphanRows2?.Count > 0)
             {
-                rowValuesList.Add(new List<string> { "File 2 Extra Rows:" });
-                BuildOrphanRows(results.OrphanRows2, rowValuesList);
-                rowValuesList.Add(new List<string>());
+                yield return GetHardCodedEnumerable("File 2 Extra Rows:");
+                yield return results.CommonColumns;
+                foreach (var orphanRow in BuildOrphanRows(results.OrphanRows2))
+                    yield return orphanRow;
+                yield return null;
             }
-
-            return rowValuesList;
         }
 
-        private static void BuildDifferences(ComparisonResults results, List<List<string>> rows)
+        private static IEnumerable<string> GetHardCodedEnumerable(params string[] values) => values;
+
+        private static IEnumerable<IEnumerable<string>> BuildDifferences(ComparisonResults results)
         {
-            var columns = results.Differences.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList();
-            rows.Add(columns);
+            var columns = results.Differences.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
+            yield return columns;
 
             foreach (DataRow dataRow in results.Differences.Rows)
-                rows.Add(dataRow.ItemArray.Cast<string>().ToList());
+                yield return dataRow.ItemArray.Select(i => i as string);
         }
 
-        private static void BuildOrphanRows(List<DataRow> orphanRows, List<List<string>> rows)
+        private static IEnumerable<IEnumerable<string>> BuildOrphanRows(List<DataRow> orphanRows)
         {
-            var columns = orphanRows[0].ItemArray.Cast<string>().ToList();
-            rows.Add(columns);
+            var columns = orphanRows[0].ItemArray.Select(i => i as string);
+            yield return columns;
 
             foreach (var dataRow in orphanRows)
-                rows.Add(dataRow.ItemArray.Cast<string>().ToList());
+                yield return dataRow.ItemArray.Select(i => i as string);
+        }
+
+        private static IEnumerable<Token> ParseCsvToTokens(TextReader reader)
+        {
+            int charCode;
+            var builder = new StringBuilder();
+            while ((charCode = reader.Read()) != -1)
+            {
+                switch (charCode)
+                {
+                    case CommaCode:
+                        if (builder.Length > 0)
+                            yield return GetNonQuotedStringValue(builder);
+                        yield return new Token(TokenType.Delimiter);
+                        break;
+                    case BackslashRCode when reader.Peek() == BackslashNCode:
+                        if (builder.Length > 0)
+                            yield return GetNonQuotedStringValue(builder);
+                        reader.Read();
+                        yield return new Token(TokenType.Newline);
+                        break;
+                    case BackslashNCode:
+                        if (builder.Length > 0)
+                            yield return GetNonQuotedStringValue(builder);
+                        yield return new Token(TokenType.Newline);
+                        break;
+                    case QuoteCode:
+                        yield return GetQuotedStringValue(reader);
+                        break;
+                    default:
+                        builder.Append((char)charCode);
+                        break;
+                }
+            }
+        }
+
+        private static Token GetQuotedStringValue(TextReader reader)
+        {
+            var builder = new StringBuilder();
+            int code;
+            while ((code = reader.Read()) != -1)
+            {
+                if (code == QuoteCode)
+                {
+                    if (reader.Peek() == QuoteCode)
+                    {
+                        reader.Read();
+                        builder.Append((char)code);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    builder.Append((char)code);
+                }
+            }
+
+            return new Token(TokenType.Value, builder.ToString());
+        }
+
+        private static Token GetNonQuotedStringValue(StringBuilder builder)
+        {
+            var token = new Token(TokenType.Value, builder.ToString());
+            builder.Clear();
+            return token;
+        }
+
+        private static IList<string> GetNextLine(IEnumerator<Token> tokens)
+        {
+            var values = new List<string>();
+            var previousTokenType = TokenType.Newline;
+
+            while (tokens.MoveNext())
+            {
+                switch (tokens.Current.TokenType)
+                {
+                    case TokenType.Newline:
+                        return values;
+                    case TokenType.Value:
+                        if (previousTokenType == TokenType.Value)
+                            throw new Exception("The csv is malformed. Please check for proper csv values.");
+                        values.Add(tokens.Current.Value);
+                        break;
+                    case TokenType.Delimiter:
+                        break;
+                }
+                previousTokenType = tokens.Current.TokenType;
+            }
+
+            return values.Count > 0
+                ? values
+                : null;
+        }
+
+        private struct Token
+        {
+            public Token(TokenType tokenType, string value = null)
+            {
+                TokenType = tokenType;
+                Value = value;
+            }
+
+            public TokenType TokenType { get; }
+            public string Value { get; }
+        }
+
+        private enum TokenType
+        {
+            Delimiter,
+            Newline,
+            Value
         }
     }
 }
