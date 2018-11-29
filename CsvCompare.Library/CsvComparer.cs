@@ -86,7 +86,7 @@ namespace CsvCompare.Library
                 if (!DataDictionary1.ContainsKey(key2))
                     orphanRows2.Add(DataDictionary2[key2]);
 
-            return new ComparisonResults(differences, existingColumns, orphanColumns1, orphanColumns2, orphanRows1, orphanRows2);
+            return new ComparisonResults(differences, orphanColumns1, orphanColumns2, orphanRows1, orphanRows2);
         }
 
         private void CompareRows(DataRow dataRow1, DataRow dataRow2, DataTable differences, List<string> existingColumns)

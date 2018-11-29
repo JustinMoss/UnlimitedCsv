@@ -39,41 +39,48 @@ namespace CsvCompare.Library
 
         public static IEnumerable<IEnumerable<string>> BuildResultsEnumerable(ComparisonResults results)
         {
-            yield return GetHardCodedEnumerable("Differences:");
-            foreach (var difference in BuildDifferences(results))
-                yield return difference;
-
+            if (results.Differences?.Rows.Count > 0)
+            {
+                yield return GetHardCodedEnumerable("Differences:");
+                foreach (var difference in BuildDifferences(results))
+                    yield return difference;
+            }
+            else
+                yield return GetHardCodedEnumerable("Differences:", "None");
             yield return null;
-
-            if (results.OrphanColumns1?.Count > 0)
-            {
-                yield return GetHardCodedEnumerable("File 1 Extra Columns:", string.Join(", ", results.OrphanColumns1));
-                yield return null;
-            }
-
-            if (results.OrphanColumns2?.Count > 0)
-            {
-                yield return GetHardCodedEnumerable("File 2 Extra Columns:", string.Join(", ", results.OrphanColumns2));
-                yield return null;
-            }
 
             if (results.OrphanRows1?.Count > 0)
             {
                 yield return GetHardCodedEnumerable("File 1 Extra Rows:");
-                yield return results.CommonColumns;
+                yield return results.OrphanRows1[0].Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
                 foreach (var orphanRow in BuildOrphanRows(results.OrphanRows1))
                     yield return orphanRow;
-                yield return null;
             }
+            else
+                yield return GetHardCodedEnumerable("File 1 Extra Rows:", "None");
+            yield return null;
 
             if (results.OrphanRows2?.Count > 0)
             {
                 yield return GetHardCodedEnumerable("File 2 Extra Rows:");
-                yield return results.CommonColumns;
+                yield return results.OrphanRows2[0].Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
                 foreach (var orphanRow in BuildOrphanRows(results.OrphanRows2))
                     yield return orphanRow;
-                yield return null;
             }
+            else
+                yield return GetHardCodedEnumerable("File 2 Extra Rows:", "None");
+            yield return null;
+
+            if (results.OrphanColumns1?.Count > 0)
+                yield return GetHardCodedEnumerable("File 1 Extra Columns:", string.Join(", ", results.OrphanColumns1));
+            else
+                yield return GetHardCodedEnumerable("File 1 Extra Columns:", "None");
+            yield return null;
+
+            if (results.OrphanColumns2?.Count > 0)
+                yield return GetHardCodedEnumerable("File 2 Extra Columns:", string.Join(", ", results.OrphanColumns2));
+            else
+                yield return GetHardCodedEnumerable("File 2 Extra Columns:", "None");
         }
 
         private static IEnumerable<string> GetHardCodedEnumerable(params string[] values) => values;
