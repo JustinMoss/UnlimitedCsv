@@ -38,8 +38,10 @@
                 <Button Name="BrowseFile2Button" Grid.Row="1" Margin="10" Grid.Column="2" Content="Browse..." Width="120" VerticalContentAlignment="Center" Click="BrowseFile2_Click"/>
             </Grid>
 
-            <Grid Name="ExclusionInclusionGrid" Grid.Row="1" Grid.Column="0" Visibility="Collapsed">
+            <Grid Name="OptionsGrid" Grid.Row="1" Grid.Column="0" Visibility="Collapsed">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -51,9 +53,24 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Extra Output Columns:" VerticalContentAlignment="Center" Margin="0 20 0 0" />
-                <ListBox Grid.Row="1" Grid.Column="0" MaxHeight="200" Name="ExtraOutputOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+                <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Row Identifier Columns:" VerticalContentAlignment="Center" Margin="0 20 0 0" />
+                <ListBox Grid.Row="1" Grid.Column="0" MaxHeight="200" Name="RowIdentifiertOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
                 <Grid Grid.Row="1" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Name="AddRowIdentifierButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="150" Height="40" Content="Add --&gt;" Click="AddRowIdentifierButton_Click"></Button>
+                    <Button Name="RemoveRowIdentifierButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="150" Height="40" Content="&lt;-- Remove" Click="RemoveRowIdentifierButton_Click"></Button>
+                </Grid>
+                <ListBox Grid.Row="1" Grid.Column="2" MaxHeight="200" Name="RowIdentifierSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+
+                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Extra Output Columns:" VerticalContentAlignment="Center" Margin="0 20 0 0" />
+                <ListBox Grid.Row="3" Grid.Column="0" MaxHeight="200" Name="ExtraOutputOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+                <Grid Grid.Row="3" Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -64,11 +81,11 @@
                     <Button Name="AddExtraOutputButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="150" Height="40" Content="Add --&gt;" Click="AddExtraOutputButton_Click"></Button>
                     <Button Name="RemoveExtraOutputButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="150" Height="40" Content="&lt;-- Remove" Click="RemoveExtraOutputButton_Click"></Button>
                 </Grid>
-                <ListBox Grid.Row="1" Grid.Column="2" MaxHeight="200" Name="ExtraOutputSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+                <ListBox Grid.Row="3" Grid.Column="2" MaxHeight="200" Name="ExtraOutputSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
 
-                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Compare Exclude Columns:" VerticalContentAlignment="Center" Margin="0 20 0 0"/>
-                <ListBox Grid.Row="3" Grid.Column="0" MaxHeight="200" Name="CompareExcludeOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
-                <Grid Grid.Row="3" Grid.Column="1">
+                <Label Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Content="Compare Exclude Columns:" VerticalContentAlignment="Center" Margin="0 20 0 0"/>
+                <ListBox Grid.Row="5" Grid.Column="0" MaxHeight="200" Name="CompareExcludeOptionsList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+                <Grid Grid.Row="5" Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -79,7 +96,7 @@
                     <Button Name="AddCompareExcludeButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="150" Height="40" Content="Add --&gt;" Click="AddCompareExcludeButton_Click"></Button>
                     <Button Name="RemoveCompareExcludeButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="150" Height="40" Content="&lt;-- Remove" Click="RemoveCompareExcludeButton_Click"></Button>
                 </Grid>
-                <ListBox Grid.Row="3" Grid.Column="2" MaxHeight="200" Name="CompareExcludeSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
+                <ListBox Grid.Row="5" Grid.Column="2" MaxHeight="200" Name="CompareExcludeSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
             </Grid>
 
             <Label Name="ErrorLabel"  Grid.Row="2" Grid.Column="0" Foreground="Red" VerticalContentAlignment="Center" />

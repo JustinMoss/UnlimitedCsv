@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CsvCompare.Library
 {
     public class CsvComparer
     {
-        public CsvComparer(DataTable dataTable1, DataTable dataTable2, IEnumerable<string> excludeColumns = null, IEnumerable<string> includeColumns = null)
+        public CsvComparer(DataTable dataTable1, DataTable dataTable2, List<string> identifierColumns, List<string> excludeColumns = null, List<string> includeColumns = null)
         {
             DataTable1 = dataTable1.Copy();
             DataTable2 = dataTable2.Copy();
 
             DataDictionary1 = new Dictionary<string, DataRow>();
             DataDictionary2 = new Dictionary<string, DataRow>();
+
+            IdentifierColumns = identifierColumns;
 
             ExcludeColumns = excludeColumns ?? new List<string>();
             IncludeColumns = includeColumns ?? new List<string>();
@@ -26,8 +29,9 @@ namespace CsvCompare.Library
         public Dictionary<string, DataRow> DataDictionary1 { get; }
         public Dictionary<string, DataRow> DataDictionary2 { get; }
 
-        public IEnumerable<string> ExcludeColumns { get; }
-        public IEnumerable<string> IncludeColumns { get; }
+        public List<string> IdentifierColumns { get; }
+        public List<string> ExcludeColumns { get; }
+        public List<string> IncludeColumns { get; }
 
         private void SetupData()
         {
@@ -37,11 +41,24 @@ namespace CsvCompare.Library
                 DataTable2.Columns.Remove(excludeColumn);
             }
 
-            foreach (DataRow row in DataTable1.Rows)
-                DataDictionary1.Add((string)row[0], row);
+            if (IdentifierColumns.Count == 1)
+            {
+                var idColumn = IdentifierColumns.First();
 
-            foreach (DataRow row in DataTable2.Rows)
-                DataDictionary2.Add((string)row[0], row);
+                foreach (DataRow row in DataTable1.Rows)
+                    DataDictionary1.Add((string)row[idColumn], row);
+
+                foreach (DataRow row in DataTable2.Rows)
+                    DataDictionary2.Add((string)row[idColumn], row);
+            }
+            else
+            {
+                foreach (DataRow row in DataTable1.Rows)
+                    DataDictionary1.Add(string.Join("", IdentifierColumns.Select(id => row[id])), row);
+
+                foreach (DataRow row in DataTable2.Rows)
+                    DataDictionary2.Add(string.Join("", IdentifierColumns.Select(id => row[id])), row);
+            }
         }
 
         public Task<ComparisonResults> CompareAsync()
@@ -67,7 +84,8 @@ namespace CsvCompare.Library
 
             var differences = new DataTable();
 
-            differences.Columns.Add(existingColumns[0]);
+            foreach (var identifierColumn in IdentifierColumns)
+                differences.Columns.Add(identifierColumn);
 
             foreach (var column in IncludeColumns)
                 differences.Columns.Add(column);
@@ -99,7 +117,9 @@ namespace CsvCompare.Library
                     continue;
 
                 var row = differences.NewRow();
-                row[existingColumns[0]] = dataRow1[0];
+
+                foreach (var identifierColumn in IdentifierColumns)
+                    row[identifierColumn] = dataRow1[identifierColumn];
 
                 foreach (var includeColumn in IncludeColumns)
                     row[includeColumn] = dataRow1[includeColumn];

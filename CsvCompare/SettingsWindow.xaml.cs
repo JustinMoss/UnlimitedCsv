@@ -33,13 +33,13 @@ namespace CsvCompare
 
                 var fileName = GetFileName();
                 if (fileName == null)
-                    ErrorLabel.Content = "Error when choosing File 1. Please try again.";
+                    SetError("Error when choosing File 1. Please try again.");
                 else
                     File1TextBox.Text = fileName;
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -51,13 +51,13 @@ namespace CsvCompare
 
                 var fileName = GetFileName();
                 if (fileName == null)
-                    ErrorLabel.Content = "Error when choosing File 2. Please try again.";
+                    SetError("Error when choosing File 2. Please try again.");
                 else
                     File2TextBox.Text = fileName;
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -66,12 +66,20 @@ namespace CsvCompare
             try
             {
                 ClearErrors();
+
+                if (RowIdentifierSelectedList.Items.Count == 0)
+                {
+                    ErrorLabel.Content = "Please selected at least one column to use as an identifier.";
+                    return;
+                }
+
                 DisableButtons();
 
+                var rowIdentifierColumns = RowIdentifierSelectedList.Items.Cast<string>();
                 var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>();
                 var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>();
 
-                var results = await GetComparisonResultsAsync(inclusionColumns, exclusionColumns);
+                var results = await GetComparisonResultsAsync(rowIdentifierColumns, inclusionColumns, exclusionColumns);
 
                 if (ComparisonWindow == null)
                     ComparisonWindow = new ComparisonResultsWindow(results, this);
@@ -83,10 +91,63 @@ namespace CsvCompare
                 EnableButtons();
                 Hide();
             }
+            catch (ArgumentException ex) when (ex.Message == "An item with the same key has already been added.")
+            {
+                ErrorLabel.Content = $"The identifier columns are not unique enough. Repeats founds between rows.";
+                EnableButtons();
+            }
             catch (Exception ex)
             {
-                EnableButtons();
                 ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                EnableButtons();
+            }
+        }
+
+        private void AddRowIdentifierButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ClearErrors();
+
+                var items = RowIdentifiertOptionsList.SelectedItems.Cast<object>().ToList();
+                foreach (var item in items)
+                {
+                    RowIdentifierSelectedList.Items.Add(item);
+                    RowIdentifiertOptionsList.Items.Remove(item);
+                    ExtraOutputOptionsList.Items.Remove(item);
+                    CompareExcludeOptionsList.Items.Remove(item);
+                }
+
+                RowIdentifierSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+            }
+            catch (Exception ex)
+            {
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
+            }
+        }
+
+        private void RemoveRowIdentifierButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ClearErrors();
+
+                var items = RowIdentifierSelectedList.SelectedItems.Cast<object>().ToList();
+                foreach (var item in items)
+                {
+                    RowIdentifiertOptionsList.Items.Add(item);
+                    CompareExcludeOptionsList.Items.Add(item);
+                    ExtraOutputOptionsList.Items.Add(item);
+                    RowIdentifierSelectedList.Items.Remove(item);
+                }
+
+                RowIdentifiertOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+            }
+            catch (Exception ex)
+            {
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -108,7 +169,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -131,7 +192,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -153,7 +214,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -176,7 +237,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -190,17 +251,14 @@ namespace CsvCompare
                 File1Data = await CsvReader.ReadFileToDataTableAsync(File1TextBox.Text);
 
                 if (File2Data != null)
-                    SetInclusionExclusionOptions();
+                    SetOptions();
 
                 EnableButtons();
             }
             catch (Exception ex)
             {
                 File1Data = null;
-                EnableButtons();
-                ExclusionInclusionGrid.Visibility = Visibility.Collapsed;
-                CompareButton.Visibility = Visibility.Collapsed;
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -214,17 +272,14 @@ namespace CsvCompare
                 File2Data = await CsvReader.ReadFileToDataTableAsync(File2TextBox.Text);
 
                 if (File1Data != null)
-                    SetInclusionExclusionOptions();
+                    SetOptions();
 
                 EnableButtons();
             }
             catch (Exception ex)
             {
                 File2Data = null;
-                EnableButtons();
-                ExclusionInclusionGrid.Visibility = Visibility.Collapsed;
-                CompareButton.Visibility = Visibility.Collapsed;
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -240,7 +295,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
@@ -257,7 +312,7 @@ namespace CsvCompare
                 : null;
         }
 
-        private void SetInclusionExclusionOptions()
+        private void SetOptions()
         {
             var columns1 = new List<string>();
             var columns2 = new List<string>();
@@ -268,38 +323,52 @@ namespace CsvCompare
             foreach (DataColumn column in File2Data.Columns)
                 columns2.Add(column.ColumnName);
 
-            //First Column is ID column, it's already added and not allowed to be removed
-            columns1.RemoveAt(0);
-            columns2.RemoveAt(0);
-
             commonColumns = columns1.Intersect(columns2, StringComparer.OrdinalIgnoreCase).ToList();
 
+            if (commonColumns.Count == 0)
+            {
+                SetError($"There were no common columns found between the two files. There is nothing to compare.");
+                return;
+            }
+
+            //Preset first column as ID
+            var firstColumnName = commonColumns[0];
+            commonColumns.RemoveAt(0);
+
+            RowIdentifiertOptionsList.Items.Clear();
+            RowIdentifierSelectedList.Items.Clear();
             ExtraOutputOptionsList.Items.Clear();
             ExtraOutputSelectedList.Items.Clear();
             CompareExcludeOptionsList.Items.Clear();
             CompareExcludeSelectedList.Items.Clear();
 
+            RowIdentifierSelectedList.Items.Add(firstColumnName);
+
             foreach (var column in commonColumns)
             {
+                RowIdentifiertOptionsList.Items.Add(column);
                 ExtraOutputOptionsList.Items.Add(column);
                 CompareExcludeOptionsList.Items.Add(column);
             }
 
+            RowIdentifiertOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
 
             CompareButton.Visibility = Visibility.Visible;
-            ExclusionInclusionGrid.Visibility = Visibility.Visible;
+            OptionsGrid.Visibility = Visibility.Visible;
         }
 
-        private Task<ComparisonResults> GetComparisonResultsAsync(IEnumerable<string> inclusionColumns, IEnumerable<string> exclusionColumns)
+        private Task<ComparisonResults> GetComparisonResultsAsync(IEnumerable<string> identifierColumns, IEnumerable<string> inclusionColumns, IEnumerable<string> exclusionColumns)
         {
-            return new CsvComparer(File1Data, File2Data, exclusionColumns, inclusionColumns).CompareAsync();
+            return new CsvComparer(File1Data, File2Data, identifierColumns.ToList(), exclusionColumns.ToList(), inclusionColumns.ToList()).CompareAsync();
         }
 
         private void EnableButtons()
         {
             CompareButton.IsEnabled = true;
+            AddRowIdentifierButton.IsEnabled = true;
+            RemoveRowIdentifierButton.IsEnabled = true;
             AddCompareExcludeButton.IsEnabled = true;
             RemoveCompareExcludeButton.IsEnabled = true;
             AddExtraOutputButton.IsEnabled = true;
@@ -311,6 +380,8 @@ namespace CsvCompare
         private void DisableButtons()
         {
             CompareButton.IsEnabled = false;
+            AddRowIdentifierButton.IsEnabled = false;
+            RemoveRowIdentifierButton.IsEnabled = false;
             AddCompareExcludeButton.IsEnabled = false;
             RemoveCompareExcludeButton.IsEnabled = false;
             AddExtraOutputButton.IsEnabled = false;
@@ -322,6 +393,14 @@ namespace CsvCompare
         private void ClearErrors()
         {
             ErrorLabel.Content = "";
+        }
+
+        private void SetError(string error)
+        {
+            EnableButtons();
+            OptionsGrid.Visibility = Visibility.Collapsed;
+            CompareButton.Visibility = Visibility.Collapsed;
+            ErrorLabel.Content = error;
         }
     }
 }
