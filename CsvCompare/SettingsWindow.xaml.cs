@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,9 +33,7 @@ namespace CsvCompare
                 ClearErrors();
 
                 var fileName = GetFileName();
-                if (fileName == null)
-                    SetError("Error when choosing File 1. Please try again.");
-                else
+                if (fileName != null)
                     File1TextBox.Text = fileName;
             }
             catch (Exception ex)
@@ -50,9 +49,7 @@ namespace CsvCompare
                 ClearErrors();
 
                 var fileName = GetFileName();
-                if (fileName == null)
-                    SetError("Error when choosing File 2. Please try again.");
-                else
+                if (fileName != null)
                     File2TextBox.Text = fileName;
             }
             catch (Exception ex)
@@ -255,6 +252,11 @@ namespace CsvCompare
 
                 EnableButtons();
             }
+            catch (FileNotFoundException)
+            {
+                File1Data = null;
+                SetError("File 1 was not found. Please choose File 1 again.");
+            }
             catch (Exception ex)
             {
                 File1Data = null;
@@ -275,6 +277,11 @@ namespace CsvCompare
                     SetOptions();
 
                 EnableButtons();
+            }
+            catch (FileNotFoundException)
+            {
+                File1Data = null;
+                SetError("File 2 was not found. Please choose File 2 again.");
             }
             catch (Exception ex)
             {
