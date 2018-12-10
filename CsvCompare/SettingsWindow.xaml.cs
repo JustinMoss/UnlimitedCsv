@@ -107,13 +107,11 @@ namespace CsvCompare
             {
                 ClearErrors();
 
-                var items = RowIdentifiertOptionsList.SelectedItems.Cast<object>().ToList();
+                var items = AvailableColumnsList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
                     RowIdentifierSelectedList.Items.Add(item);
-                    RowIdentifiertOptionsList.Items.Remove(item);
-                    ExtraOutputOptionsList.Items.Remove(item);
-                    CompareExcludeOptionsList.Items.Remove(item);
+                    AvailableColumnsList.Items.Remove(item);
                 }
 
                 RowIdentifierSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
@@ -133,15 +131,11 @@ namespace CsvCompare
                 var items = RowIdentifierSelectedList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
-                    RowIdentifiertOptionsList.Items.Add(item);
-                    CompareExcludeOptionsList.Items.Add(item);
-                    ExtraOutputOptionsList.Items.Add(item);
+                    AvailableColumnsList.Items.Add(item);
                     RowIdentifierSelectedList.Items.Remove(item);
                 }
 
-                RowIdentifiertOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                AvailableColumnsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -155,12 +149,11 @@ namespace CsvCompare
             {
                 ClearErrors();
 
-                var items = ExtraOutputOptionsList.SelectedItems.Cast<object>().ToList();
+                var items = AvailableColumnsList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
                     ExtraOutputSelectedList.Items.Add(item);
-                    ExtraOutputOptionsList.Items.Remove(item);
-                    CompareExcludeOptionsList.Items.Remove(item);
+                    AvailableColumnsList.Items.Remove(item);
                 }
 
                 ExtraOutputSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
@@ -180,13 +173,11 @@ namespace CsvCompare
                 var items = ExtraOutputSelectedList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
-                    CompareExcludeOptionsList.Items.Add(item);
-                    ExtraOutputOptionsList.Items.Add(item);
+                    AvailableColumnsList.Items.Add(item);
                     ExtraOutputSelectedList.Items.Remove(item);
                 }
 
-                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                AvailableColumnsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -200,12 +191,11 @@ namespace CsvCompare
             {
                 ClearErrors();
 
-                var items = CompareExcludeOptionsList.SelectedItems.Cast<object>().ToList();
+                var items = AvailableColumnsList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
                     CompareExcludeSelectedList.Items.Add(item);
-                    CompareExcludeOptionsList.Items.Remove(item);
-                    ExtraOutputOptionsList.Items.Remove(item);
+                    AvailableColumnsList.Items.Remove(item);
                 }
 
                 CompareExcludeSelectedList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
@@ -225,13 +215,11 @@ namespace CsvCompare
                 var items = CompareExcludeSelectedList.SelectedItems.Cast<object>().ToList();
                 foreach (var item in items)
                 {
-                    ExtraOutputOptionsList.Items.Add(item);
-                    CompareExcludeOptionsList.Items.Add(item);
+                    AvailableColumnsList.Items.Add(item);
                     CompareExcludeSelectedList.Items.Remove(item);
                 }
 
-                ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-                CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+                AvailableColumnsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
             }
             catch (Exception ex)
             {
@@ -346,25 +334,17 @@ namespace CsvCompare
             var firstColumnName = commonColumns[0];
             commonColumns.RemoveAt(0);
 
-            RowIdentifiertOptionsList.Items.Clear();
+            AvailableColumnsList.Items.Clear();
             RowIdentifierSelectedList.Items.Clear();
-            ExtraOutputOptionsList.Items.Clear();
             ExtraOutputSelectedList.Items.Clear();
-            CompareExcludeOptionsList.Items.Clear();
             CompareExcludeSelectedList.Items.Clear();
 
             RowIdentifierSelectedList.Items.Add(firstColumnName);
 
             foreach (var column in commonColumns)
-            {
-                RowIdentifiertOptionsList.Items.Add(column);
-                ExtraOutputOptionsList.Items.Add(column);
-                CompareExcludeOptionsList.Items.Add(column);
-            }
+                AvailableColumnsList.Items.Add(column);
 
-            RowIdentifiertOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-            ExtraOutputOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
-            CompareExcludeOptionsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
+            AvailableColumnsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
 
             CompareButton.Visibility = Visibility.Visible;
             OptionsGrid.Visibility = Visibility.Visible;
