@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using CsvCompare.Library;
 using Microsoft.Win32;
 
@@ -289,6 +290,9 @@ namespace CsvCompare
                 SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
+
+        private void BrowseFile_OnDrop(object sender, DragEventArgs e) => ((TextBox)sender).Text = ((string[])e.Data.GetData(DataFormats.FileDrop))?[0] ?? "";
+        private void BrowseFile_OnDragEnter(object sender, DragEventArgs e) => e.Handled = true;
 
         private void Window_Closed(object sender, EventArgs e)
         {
