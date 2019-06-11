@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using System.Windows;
 using CsvCompare.Library;
 using Microsoft.Win32;
@@ -11,7 +13,7 @@ namespace CsvCompare
     /// </summary>
     public partial class ComparisonResultsWindow : Window
     {
-        public ComparisonResultsWindow(ComparisonResults results, SettingsWindow settingsWindow)
+        public ComparisonResultsWindow(SettingsWindow settingsWindow)
         {
             try
             {
@@ -20,8 +22,6 @@ namespace CsvCompare
                 ClearErrors();
 
                 SettingsWindow = settingsWindow;
-
-                SetResults(results);
             }
             catch (Exception ex)
             {
@@ -92,13 +92,18 @@ namespace CsvCompare
             }
         }
 
-        public void SetResults(ComparisonResults results)
+        public async Task SetSettings(string file1Name, string file2Name, List<string> identifierColumns, List<string> exclusionColumns, List<string> inclusionColumns)
         {
             try
             {
                 ClearErrors();
 
-                Results = results;
+                var file1Data = await CsvReader.ReadDataTableFromFileAsync(file1Name);
+                var file2Data = await CsvReader.ReadDataTableFromFileAsync(file2Name);
+
+                var comparer = new CsvComparer(file1Data, file2Data, identifierColumns, exclusionColumns, inclusionColumns);
+
+                Results = await comparer.CompareAsync();
 
                 if (Results.Differences.Rows.Count > 0)
                 {
@@ -112,20 +117,20 @@ namespace CsvCompare
                     DifferencesDataGrid.Visibility = Visibility.Collapsed;
                 }
 
-                File1OrphansLabel.Content = results.OrphanColumns1?.Count > 0 
-                    ? $"File 1 Extra Columns: {string.Join(", ", results.OrphanColumns1)}" 
+                File1OrphansLabel.Content = Results.OrphanColumns1?.Count > 0 
+                    ? $"File 1 Extra Columns: {string.Join(", ", Results.OrphanColumns1)}" 
                     : "File 1 Extra Columns: None";
 
-                File2OrphansLabel.Content = results.OrphanColumns2?.Count > 0 
-                    ? $"File 2 Extra Columns: {string.Join(", ", results.OrphanColumns2)}" 
+                File2OrphansLabel.Content = Results.OrphanColumns2?.Count > 0 
+                    ? $"File 2 Extra Columns: {string.Join(", ", Results.OrphanColumns2)}" 
                     : "File 2 Extra Columns: None";
 
-                if (results.OrphanRows1?.Count > 0)
+                if (Results.OrphanRows1?.Count > 0)
                 {
                     var table = new DataTable();
-                    foreach (DataColumn tableColumn in results.OrphanRows1[0].Table.Columns)
+                    foreach (DataColumn tableColumn in Results.OrphanRows1[0].Table.Columns)
                         table.Columns.Add(tableColumn.ColumnName);
-                    foreach (var dataRow in results.OrphanRows1)
+                    foreach (var dataRow in Results.OrphanRows1)
                         table.ImportRow(dataRow);
 
                     File1ExtraRowsGrid.ItemsSource = table.DefaultView;
@@ -139,12 +144,12 @@ namespace CsvCompare
                     File1ExtraRowsGrid.Visibility = Visibility.Collapsed;
                 }
 
-                if (results.OrphanRows2?.Count > 0)
+                if (Results.OrphanRows2?.Count > 0)
                 {
                     var table = new DataTable();
-                    foreach (DataColumn tableColumn in results.OrphanRows2[0].Table.Columns)
+                    foreach (DataColumn tableColumn in Results.OrphanRows2[0].Table.Columns)
                         table.Columns.Add(tableColumn.ColumnName);
-                    foreach (var dataRow in results.OrphanRows2)
+                    foreach (var dataRow in Results.OrphanRows2)
                         table.ImportRow(dataRow);
 
                     File2ExtraRowsGrid.ItemsSource = table.DefaultView;

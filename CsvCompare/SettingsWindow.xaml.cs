@@ -24,8 +24,8 @@ namespace CsvCompare
 
         public bool IsClosed { get; set; }
         private ComparisonResultsWindow ComparisonWindow { get; set; }
-        private DataTable File1Data { get; set; }
-        private DataTable File2Data { get; set; }
+        private IList<string> File1ColumnNames { get; set; }
+        private IList<string> File2ColumnNames { get; set; }
 
         private void BrowseFile1_Click(object sender, RoutedEventArgs e)
         {
@@ -73,16 +73,14 @@ namespace CsvCompare
 
                 DisableButtons();
 
-                var rowIdentifierColumns = RowIdentifierSelectedList.Items.Cast<string>();
-                var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>();
-                var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>();
-
-                var results = await GetComparisonResultsAsync(rowIdentifierColumns, inclusionColumns, exclusionColumns);
+                var rowIdentifierColumns = RowIdentifierSelectedList.Items.Cast<string>().ToList();
+                var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
+                var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
 
                 if (ComparisonWindow == null)
-                    ComparisonWindow = new ComparisonResultsWindow(results, this);
-                else
-                    ComparisonWindow.SetResults(results);
+                    ComparisonWindow = new ComparisonResultsWindow(this);
+
+                await ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns);
 
                 ComparisonWindow.Show();
 
@@ -91,7 +89,7 @@ namespace CsvCompare
             }
             catch (ArgumentException ex) when (ex.Message == "An item with the same key has already been added.")
             {
-                ErrorLabel.Content = $"The identifier columns are not unique enough. Repeats founds between rows.";
+                ErrorLabel.Content = "The identifier columns are not unique enough. Repeats founds between rows.";
                 EnableButtons();
             }
             catch (Exception ex)
@@ -227,60 +225,63 @@ namespace CsvCompare
             }
         }
 
-        private async void File1TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private async void File1TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
                 ClearErrors();
                 DisableButtons();
 
-                File1Data = await CsvReader.ReadFileToDataTableAsync(File1TextBox.Text);
+                File1ColumnNames = await CsvReader.ReadColumnsNamesFromFileAsync(File1TextBox.Text);
 
-                if (File2Data != null)
+                if (File2ColumnNames != null)
                     SetOptions();
 
                 EnableButtons();
             }
             catch (FileNotFoundException)
             {
-                File1Data = null;
+                File1ColumnNames = null;
                 SetError("File 1 was not found. Please choose File 1 again.");
             }
             catch (Exception ex)
             {
-                File1Data = null;
+                File1ColumnNames = null;
                 SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
-        private async void File2TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private async void File2TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
                 ClearErrors();
                 DisableButtons();
 
-                File2Data = await CsvReader.ReadFileToDataTableAsync(File2TextBox.Text);
+                File2ColumnNames = await CsvReader.ReadColumnsNamesFromFileAsync(File2TextBox.Text);
 
-                if (File1Data != null)
+                if (File1ColumnNames != null)
                     SetOptions();
 
                 EnableButtons();
             }
             catch (FileNotFoundException)
             {
-                File1Data = null;
+                File2ColumnNames = null;
                 SetError("File 2 was not found. Please choose File 2 again.");
             }
             catch (Exception ex)
             {
-                File2Data = null;
+                File2ColumnNames = null;
                 SetError($"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}");
             }
         }
 
-        private void BrowseFile_OnDrop(object sender, DragEventArgs e) => ((TextBox)sender).Text = ((string[])e.Data.GetData(DataFormats.FileDrop))?[0] ?? "";
-        private void BrowseFile_OnDragEnter(object sender, DragEventArgs e) => e.Handled = true;
+        private void BrowseFile_OnDrop(object sender, DragEventArgs e) 
+            => ((TextBox)sender).Text = ((string[])e.Data.GetData(DataFormats.FileDrop))?[0] ?? "";
+
+        private void BrowseFile_OnDragEnter(object sender, DragEventArgs e) 
+            => e.Handled = true;
 
         private void Window_Closed(object sender, EventArgs e)
         {
@@ -313,20 +314,11 @@ namespace CsvCompare
 
         private void SetOptions()
         {
-            var columns1 = new List<string>();
-            var columns2 = new List<string>();
-            var commonColumns = new List<string>();
-
-            foreach (DataColumn column in File1Data.Columns)
-                columns1.Add(column.ColumnName);
-            foreach (DataColumn column in File2Data.Columns)
-                columns2.Add(column.ColumnName);
-
-            commonColumns = columns1.Intersect(columns2, StringComparer.OrdinalIgnoreCase).ToList();
+            var commonColumns = File1ColumnNames.Intersect(File2ColumnNames, StringComparer.OrdinalIgnoreCase).ToList();
 
             if (commonColumns.Count == 0)
             {
-                SetError($"There were no common columns found between the two files. There is nothing to compare.");
+                SetError("There were no common columns found between the two files. There is nothing to compare.");
                 return;
             }
 
@@ -348,11 +340,6 @@ namespace CsvCompare
 
             CompareButton.Visibility = Visibility.Visible;
             OptionsGrid.Visibility = Visibility.Visible;
-        }
-
-        private Task<ComparisonResults> GetComparisonResultsAsync(IEnumerable<string> identifierColumns, IEnumerable<string> inclusionColumns, IEnumerable<string> exclusionColumns)
-        {
-            return new CsvComparer(File1Data, File2Data, identifierColumns.ToList(), exclusionColumns.ToList(), inclusionColumns.ToList()).CompareAsync();
         }
 
         private void EnableButtons()

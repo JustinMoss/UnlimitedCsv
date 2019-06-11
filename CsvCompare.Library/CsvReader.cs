@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -6,22 +7,40 @@ namespace CsvCompare.Library
 {
     public class CsvReader
     {
-        public static Task<DataTable> ReadStringToDataTableAsync(string csv)
-            => Task.Run(() => ReadStringToDataTable(csv));
+        public static Task<IList<string>> ReadColumnsNamesFromStringAsync(string csv)
+            => Task.Run(() => ReadColumnsNamesFromString(csv));
 
-        public static DataTable ReadStringToDataTable(string csv)
+        public static IList<string> ReadColumnsNamesFromString(string csv)
         {
             using (var reader = new StringReader(csv))
-                return CsvParser.CreateDataTableFromReader(reader);
+                return CsvParser.GetRow(reader);
         }
 
-        public static Task<DataTable> ReadFileToDataTableAsync(string file)
-            => Task.Run(() => ReadFileToDataTable(file));
+        public static Task<DataTable> ReadDataTableFromStringAsync(string csv)
+            => Task.Run(() => ReadDataTableFromString(csv));
 
-        public static DataTable ReadFileToDataTable(string file)
+        public static DataTable ReadDataTableFromString(string csv)
+        {
+            using (var reader = new StringReader(csv))
+                return CsvParser.CreateDataTable(reader);
+        }
+
+        public static Task<IList<string>> ReadColumnsNamesFromFileAsync(string file)
+            => Task.Run(() => ReadColumnsNamesFromFile(file));
+
+        public static IList<string> ReadColumnsNamesFromFile(string file)
         {
             using (var reader = new StreamReader(file))
-                return CsvParser.CreateDataTableFromReader(reader);
+                return CsvParser.GetRow(reader);
+        }
+
+        public static Task<DataTable> ReadDataTableFromFileAsync(string file)
+            => Task.Run(() => ReadDataTableFromFile(file));
+
+        public static DataTable ReadDataTableFromFile(string file)
+        {
+            using (var reader = new StreamReader(file))
+                return CsvParser.CreateDataTable(reader);
         }
     }
 }

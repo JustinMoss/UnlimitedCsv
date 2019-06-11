@@ -14,7 +14,15 @@ namespace CsvCompare.Library
         public const int QuoteCode = 34;
         public const int CommaCode = 44;
 
-        public static DataTable CreateDataTableFromReader(TextReader reader)
+        public static IList<string> GetRow(TextReader reader)
+        {
+            var parseTokens = ParseCsvToTokens(reader);
+            var enumerator = parseTokens.GetEnumerator();
+
+            return GetNextLine(enumerator);
+        }
+
+        public static DataTable CreateDataTable(TextReader reader)
         {
             var parseTokens = ParseCsvToTokens(reader);
             var enumerator = parseTokens.GetEnumerator();
