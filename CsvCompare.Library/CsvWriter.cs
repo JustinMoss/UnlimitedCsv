@@ -31,8 +31,15 @@ namespace CsvCompare.Library
 
             return builder.ToString();
         }
+        public static async Task WriteRowToWriter(IEnumerable<string> row, TextWriter writer)
+        {
+            if (row == null)
+                await writer.WriteLineAsync();
+            else
+                await writer.WriteLineAsync(string.Join(",", row.Select(EscapeCsvElement)));
+        }
 
-        private static async Task WriteEnumerableToWriter(IEnumerable<IEnumerable<string>> rows, TextWriter writer)
+        public static async Task WriteEnumerableToWriter(IEnumerable<IEnumerable<string>> rows, TextWriter writer)
         {
             foreach (var row in rows)
                 if (row == null)

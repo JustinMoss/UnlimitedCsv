@@ -13,7 +13,10 @@ namespace CsvCompare.Library
         public static IList<string> ReadColumnsNamesFromString(string csv)
         {
             using (var reader = new StringReader(csv))
-                return CsvParser.GetRow(reader);
+            {
+                var tokens = CsvParser.Parse(reader);
+                return CsvParser.GetNextRow(tokens.GetEnumerator());
+            }
         }
 
         public static Task<DataTable> ReadDataTableFromStringAsync(string csv)
@@ -31,7 +34,10 @@ namespace CsvCompare.Library
         public static IList<string> ReadColumnsNamesFromFile(string file)
         {
             using (var reader = new StreamReader(file))
-                return CsvParser.GetRow(reader);
+            {
+                var tokens = CsvParser.Parse(reader);
+                return CsvParser.GetNextRow(tokens.GetEnumerator());
+            }
         }
 
         public static Task<DataTable> ReadDataTableFromFileAsync(string file)

@@ -14,12 +14,9 @@ namespace CsvCompare.Library
         public const int QuoteCode = 34;
         public const int CommaCode = 44;
 
-        public static IList<string> GetRow(TextReader reader)
+        public static IEnumerable<Token> Parse(TextReader reader)
         {
-            var parseTokens = ParseCsvToTokens(reader);
-            var enumerator = parseTokens.GetEnumerator();
-
-            return GetNextLine(enumerator);
+            return ParseCsvToTokens(reader);
         }
 
         public static DataTable CreateDataTable(TextReader reader)
@@ -27,14 +24,14 @@ namespace CsvCompare.Library
             var parseTokens = ParseCsvToTokens(reader);
             var enumerator = parseTokens.GetEnumerator();
 
-            var columnNames = GetNextLine(enumerator);
+            var columnNames = GetNextRow(enumerator);
 
             var dataTable = new DataTable();
             foreach (var columnName in columnNames)
                 dataTable.Columns.Add(columnName);
 
             IList<string> row;
-            while ((row = GetNextLine(enumerator)) != null)
+            while ((row = GetNextRow(enumerator)) != null)
             {
                 var dataRow = dataTable.NewRow();
                 for (var i = 0; i < row.Count; i++)
@@ -179,7 +176,7 @@ namespace CsvCompare.Library
             return token;
         }
 
-        private static IList<string> GetNextLine(IEnumerator<Token> tokens)
+        public static IList<string> GetNextRow(IEnumerator<Token> tokens)
         {
             var values = new List<string>();
             var previousTokenType = TokenType.Newline;
@@ -189,6 +186,8 @@ namespace CsvCompare.Library
                 switch (tokens.Current.TokenType)
                 {
                     case TokenType.Newline:
+                        if (previousTokenType == TokenType.Delimiter)
+                            values.Add(null);
                         return values;
                     case TokenType.Value:
                         if (previousTokenType == TokenType.Value)
@@ -196,6 +195,8 @@ namespace CsvCompare.Library
                         values.Add(tokens.Current.Value);
                         break;
                     case TokenType.Delimiter:
+                        if (previousTokenType == TokenType.Delimiter)
+                            values.Add(null);
                         break;
                 }
                 previousTokenType = tokens.Current.TokenType;
@@ -206,7 +207,7 @@ namespace CsvCompare.Library
                 : null;
         }
 
-        private struct Token
+        public struct Token
         {
             public Token(TokenType tokenType, string value = null)
             {
@@ -218,7 +219,7 @@ namespace CsvCompare.Library
             public string Value { get; }
         }
 
-        private enum TokenType
+        public enum TokenType
         {
             Delimiter,
             Newline,
