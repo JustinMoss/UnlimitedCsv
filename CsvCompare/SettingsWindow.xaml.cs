@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using CsvCompare.Library;
@@ -59,7 +57,7 @@ namespace CsvCompare
             }
         }
 
-        private async void Compare_Click(object sender, RoutedEventArgs e)
+        private void Compare_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -80,9 +78,9 @@ namespace CsvCompare
                 if (ComparisonWindow == null)
                     ComparisonWindow = new ComparisonResultsWindow(this);
 
-                await ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns);
-
+                ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns);
                 ComparisonWindow.Show();
+                ComparisonWindow.CreateResults();
 
                 EnableButtons();
                 Hide();

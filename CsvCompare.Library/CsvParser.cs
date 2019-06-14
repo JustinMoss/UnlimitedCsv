@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace CsvCompare.Library
@@ -14,14 +13,9 @@ namespace CsvCompare.Library
         public const int QuoteCode = 34;
         public const int CommaCode = 44;
 
-        public static IEnumerable<Token> Parse(TextReader reader)
-        {
-            return ParseCsvToTokens(reader);
-        }
-
         public static DataTable CreateDataTable(TextReader reader)
         {
-            var parseTokens = ParseCsvToTokens(reader);
+            var parseTokens = Parse(reader);
             var enumerator = parseTokens.GetEnumerator();
 
             var columnNames = GetNextRow(enumerator);
@@ -42,73 +36,7 @@ namespace CsvCompare.Library
             return dataTable;
         }
 
-        public static IEnumerable<IEnumerable<string>> BuildResultsEnumerable(ComparisonResults results)
-        {
-            if (results.Differences?.Rows.Count > 0)
-            {
-                yield return GetHardCodedEnumerable("Differences:");
-                foreach (var difference in BuildDifferences(results))
-                    yield return difference;
-            }
-            else
-                yield return GetHardCodedEnumerable("Differences:", "None");
-            yield return null;
-
-            if (results.OrphanRows1?.Count > 0)
-            {
-                yield return GetHardCodedEnumerable("File 1 Extra Rows:");
-                yield return results.OrphanRows1[0].Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
-                foreach (var orphanRow in BuildOrphanRows(results.OrphanRows1))
-                    yield return orphanRow;
-            }
-            else
-                yield return GetHardCodedEnumerable("File 1 Extra Rows:", "None");
-            yield return null;
-
-            if (results.OrphanRows2?.Count > 0)
-            {
-                yield return GetHardCodedEnumerable("File 2 Extra Rows:");
-                yield return results.OrphanRows2[0].Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
-                foreach (var orphanRow in BuildOrphanRows(results.OrphanRows2))
-                    yield return orphanRow;
-            }
-            else
-                yield return GetHardCodedEnumerable("File 2 Extra Rows:", "None");
-            yield return null;
-
-            if (results.OrphanColumns1?.Count > 0)
-                yield return GetHardCodedEnumerable("File 1 Extra Columns:", string.Join(", ", results.OrphanColumns1));
-            else
-                yield return GetHardCodedEnumerable("File 1 Extra Columns:", "None");
-            yield return null;
-
-            if (results.OrphanColumns2?.Count > 0)
-                yield return GetHardCodedEnumerable("File 2 Extra Columns:", string.Join(", ", results.OrphanColumns2));
-            else
-                yield return GetHardCodedEnumerable("File 2 Extra Columns:", "None");
-        }
-
-        private static IEnumerable<string> GetHardCodedEnumerable(params string[] values) => values;
-
-        private static IEnumerable<IEnumerable<string>> BuildDifferences(ComparisonResults results)
-        {
-            var columns = results.Differences.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
-            yield return columns;
-
-            foreach (DataRow dataRow in results.Differences.Rows)
-                yield return dataRow.ItemArray.Select(i => i as string);
-        }
-
-        private static IEnumerable<IEnumerable<string>> BuildOrphanRows(List<DataRow> orphanRows)
-        {
-            var columns = orphanRows[0].ItemArray.Select(i => i as string);
-            yield return columns;
-
-            foreach (var dataRow in orphanRows)
-                yield return dataRow.ItemArray.Select(i => i as string);
-        }
-
-        private static IEnumerable<Token> ParseCsvToTokens(TextReader reader)
+        public static IEnumerable<Token> Parse(TextReader reader)
         {
             int charCode;
             var builder = new StringBuilder();
@@ -140,6 +68,37 @@ namespace CsvCompare.Library
                         break;
                 }
             }
+        }
+
+        public static IList<string> GetNextRow(IEnumerator<Token> tokens)
+        {
+            var values = new List<string>();
+            var previousTokenType = TokenType.Newline;
+
+            while (tokens.MoveNext())
+            {
+                switch (tokens.Current.TokenType)
+                {
+                    case TokenType.Newline:
+                        if (previousTokenType == TokenType.Delimiter)
+                            values.Add(null);
+                        return values;
+                    case TokenType.Value:
+                        if (previousTokenType == TokenType.Value)
+                            throw new Exception("The csv is malformed. Please check for proper csv values.");
+                        values.Add(tokens.Current.Value);
+                        break;
+                    case TokenType.Delimiter:
+                        if (previousTokenType == TokenType.Delimiter)
+                            values.Add(null);
+                        break;
+                }
+                previousTokenType = tokens.Current.TokenType;
+            }
+
+            return values.Count > 0
+                ? values
+                : null;
         }
 
         private static Token GetQuotedStringValue(TextReader reader)
@@ -174,37 +133,6 @@ namespace CsvCompare.Library
             var token = new Token(TokenType.Value, builder.ToString());
             builder.Clear();
             return token;
-        }
-
-        public static IList<string> GetNextRow(IEnumerator<Token> tokens)
-        {
-            var values = new List<string>();
-            var previousTokenType = TokenType.Newline;
-
-            while (tokens.MoveNext())
-            {
-                switch (tokens.Current.TokenType)
-                {
-                    case TokenType.Newline:
-                        if (previousTokenType == TokenType.Delimiter)
-                            values.Add(null);
-                        return values;
-                    case TokenType.Value:
-                        if (previousTokenType == TokenType.Value)
-                            throw new Exception("The csv is malformed. Please check for proper csv values.");
-                        values.Add(tokens.Current.Value);
-                        break;
-                    case TokenType.Delimiter:
-                        if (previousTokenType == TokenType.Delimiter)
-                            values.Add(null);
-                        break;
-                }
-                previousTokenType = tokens.Current.TokenType;
-            }
-
-            return values.Count > 0
-                ? values
-                : null;
         }
 
         public struct Token

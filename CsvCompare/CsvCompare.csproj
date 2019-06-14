@@ -106,13 +106,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="CsvCompare256.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\CsvCompare.Library\CsvCompare.Library.csproj">
       <Project>{1364197a-e251-4eb5-9f8f-c0c244158994}</Project>
       <Name>CsvCompare.Library</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="CsvCompare256.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

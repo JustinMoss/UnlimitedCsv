@@ -1,37 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvCompare.Library
 {
-    public class CsvWriter
+    public class CsvWriter : IDisposable
     {
+        private readonly StreamWriter _writer;
+
+        public CsvWriter(string fileName)
+        {
+            _writer = new StreamWriter(fileName);
+        }
+
         public const char BackslashNChar = (char)10;
         public const char BackslashRChar = (char)13;
         public const char QuoteChar = (char)34;
         public const char CommaChar = (char)44;
-
-        public static async Task WriteComparisonResultsToFileAsync(string filename, ComparisonResults results)
+        
+        public async Task WriteRow(IEnumerable<string> row)
         {
-            var rows = CsvParser.BuildResultsEnumerable(results);
-
-            using (var writer = new StreamWriter(filename))
-                await WriteEnumerableToWriter(rows, writer);
+            await WriteRowToWriter(row, _writer);
         }
 
-        public static async Task<string> WriteComparisonResultsToStringAsync(ComparisonResults results)
-        {
-            var rows = CsvParser.BuildResultsEnumerable(results);
-
-            var builder = new StringBuilder();
-            using (var writer = new StringWriter(builder))
-                await WriteEnumerableToWriter(rows, writer);
-
-            return builder.ToString();
-        }
-        public static async Task WriteRowToWriter(IEnumerable<string> row, TextWriter writer)
+        public static async Task WriteRowToWriter(IEnumerable<string> row, StreamWriter writer)
         {
             if (row == null)
                 await writer.WriteLineAsync();
@@ -39,7 +33,12 @@ namespace CsvCompare.Library
                 await writer.WriteLineAsync(string.Join(",", row.Select(EscapeCsvElement)));
         }
 
-        public static async Task WriteEnumerableToWriter(IEnumerable<IEnumerable<string>> rows, TextWriter writer)
+        public async Task WriteEnumerable(IEnumerable<IEnumerable<string>> rows)
+        {
+            await WriteEnumerableToWriter(rows, _writer);
+        }
+
+        public static async Task WriteEnumerableToWriter(IEnumerable<IEnumerable<string>> rows, StreamWriter writer)
         {
             foreach (var row in rows)
                 if (row == null)
@@ -58,6 +57,11 @@ namespace CsvCompare.Library
                 return QuoteChar + element.Replace("\"", "\"\"") + QuoteChar;
 
             return element;
+        }
+
+        public void Dispose()
+        {
+            _writer?.Dispose();
         }
     }
 }
