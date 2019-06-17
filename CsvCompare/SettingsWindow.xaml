@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CsvCompare"
         mc:Ignorable="d"
-        Title="CSV Compare" Height="750" Width="1300" FontSize="20" Closed="Window_Closed">
+        Title="CSV Compare 2.0" Height="750" Width="1300" FontSize="20" Closed="Window_Closed">
     <ScrollViewer>
         <Grid>
             <Grid.RowDefinitions>
@@ -94,13 +94,25 @@
                     <Button Name="AddCompareExcludeButton" Grid.Row="0" Grid.Column="0" Margin="10" Width="150" Height="40" Content="Add --&gt;" Click="AddCompareExcludeButton_Click"></Button>
                     <Button Name="RemoveCompareExcludeButton" Grid.Row="1" Grid.Column="0" Margin="10" Width="150" Height="40" Content="&lt;-- Remove" Click="RemoveCompareExcludeButton_Click"></Button>
                 </Grid>
-                <Label Grid.Row="4" Grid.Column="2" Content="Compare Exclude Columns:" VerticalContentAlignment="Center" Margin="0 20 0 0"/>
+                <Label Grid.Row="4" Grid.Column="2" Content="Columns To Ignore:" VerticalContentAlignment="Center" Margin="0 20 0 0"/>
                 <ListBox Grid.Row="5" Grid.Column="2" Height="130" Name="CompareExcludeSelectedList" SelectionMode="Extended" HorizontalAlignment="Stretch" />
             </Grid>
 
             <Label Name="ErrorLabel"  Grid.Row="2" Grid.Column="0" Foreground="Red" VerticalContentAlignment="Center" />
 
-            <Button Name="CompareButton" Grid.Row="3" Grid.Column="0" Margin="10" Content="Compare" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="150" Height="50" Visibility="Collapsed" Click="Compare_Click"/>
+            <Grid Grid.Row="3" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <CheckBox Grid.Row="0" Grid.Column="0" Name="SkipSortCheckBox" HorizontalAlignment="Center" VerticalContentAlignment="Center" Content="I sorted the files already." Visibility="Collapsed"></CheckBox>
+                <Button Name="CompareButton" Grid.Row="0" Grid.Column="1" Margin="10" Content="Compare" VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="150" Height="50" Visibility="Collapsed" Click="Compare_Click"/>
+                <CheckBox Grid.Row="0" Grid.Column="2" Name="CaseInsensitiveCheckBox" HorizontalAlignment="Center" VerticalContentAlignment="Center" Content="Ignore casing when comparing." Visibility="Collapsed"></CheckBox>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </Window>

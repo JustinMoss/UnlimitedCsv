@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CsvCompare"
         mc:Ignorable="d"
-        Title="CSV Compare" Height="750" Width="1300" FontSize="16"  Closed="Window_Closed">
+        Title="CSV Compare 2.0" Height="750" Width="1300" FontSize="16"  Closed="Window_Closed">
     <ScrollViewer>
         <Grid>
             <Grid.RowDefinitions>

@@ -74,11 +74,13 @@ namespace CsvCompare
                 var rowIdentifierColumns = RowIdentifierSelectedList.Items.Cast<string>().ToList();
                 var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
                 var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
+                var ignoreCase = CaseInsensitiveCheckBox.IsChecked ?? false;
+                var alreadySorted = SkipSortCheckBox.IsChecked ?? false;
 
                 if (ComparisonWindow == null)
                     ComparisonWindow = new ComparisonResultsWindow(this);
 
-                ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns);
+                ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns, ignoreCase, alreadySorted);
                 ComparisonWindow.Show();
                 ComparisonWindow.CreateResults();
 
@@ -337,12 +339,16 @@ namespace CsvCompare
             AvailableColumnsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
 
             CompareButton.Visibility = Visibility.Visible;
+            CaseInsensitiveCheckBox.Visibility = Visibility.Visible;
+            SkipSortCheckBox.Visibility = Visibility.Visible;
             OptionsGrid.Visibility = Visibility.Visible;
         }
 
         private void EnableButtons()
         {
             CompareButton.IsEnabled = true;
+            CaseInsensitiveCheckBox.IsEnabled = true;
+            SkipSortCheckBox.IsEnabled = true;
             AddRowIdentifierButton.IsEnabled = true;
             RemoveRowIdentifierButton.IsEnabled = true;
             AddCompareExcludeButton.IsEnabled = true;
@@ -356,6 +362,8 @@ namespace CsvCompare
         private void DisableButtons()
         {
             CompareButton.IsEnabled = false;
+            CaseInsensitiveCheckBox.IsEnabled = false;
+            SkipSortCheckBox.IsEnabled = false;
             AddRowIdentifierButton.IsEnabled = false;
             RemoveRowIdentifierButton.IsEnabled = false;
             AddCompareExcludeButton.IsEnabled = false;
@@ -376,6 +384,8 @@ namespace CsvCompare
             EnableButtons();
             OptionsGrid.Visibility = Visibility.Collapsed;
             CompareButton.Visibility = Visibility.Collapsed;
+            CaseInsensitiveCheckBox.Visibility = Visibility.Collapsed;
+            SkipSortCheckBox.Visibility = Visibility.Collapsed;
             ErrorLabel.Content = error;
         }
     }

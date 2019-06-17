@@ -9,8 +9,11 @@ namespace CsvCompare.Library
     {
         public static async Task<(List<string> ColumnOrphans1, List<string> ColumnOrphans2)> Compare(
             string file1SortedName, string file2SortedName, List<string> identifierColumns, List<string> inclusionColumns, 
-            List<string> exclusionColumns, string comparisonTempFile, string rowOrphans1TempFile, string rowOrphans2TempFile)
+            List<string> exclusionColumns, string comparisonTempFile, string rowOrphans1TempFile, string rowOrphans2TempFile,
+            bool ignoreCase)
         {
+            var stringCompareType = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            
             List<string> columnOrphans1;
             List<string> columnOrphans2;
             using (var reader1 = new CsvReader(file1SortedName))
@@ -86,7 +89,7 @@ namespace CsvCompare.Library
                         // Loop to find difference
                         foreach (var (name, index1, index2) in compareColumnIndex)
                         {
-                            if (row1[index1] == row2[index2])
+                            if (string.Equals(row1[index1], row2[index2], stringCompareType))
                                 continue;
 
                             // Output those to differences
