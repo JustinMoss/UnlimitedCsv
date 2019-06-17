@@ -131,34 +131,39 @@ namespace CsvCompare
                 var file1SortedName = _file1Name.Replace(".csv", "_sorted.csv");
                 var file2SortedName = _file2Name.Replace(".csv", "_sorted.csv");
 
-                _comparisonTempFile = $"_comparison_{fileTime}_temp.csv";
-                _rowOrphans1TempFile = $"_comparison_orphans1_{fileTime}_temp.csv";
-                _rowOrphans2TempFile = $"_comparison_orphans2_{fileTime}_temp.csv";
+                var tempFolder = $"{Path.GetTempPath()}CsvCompare\\";
+                if (!Directory.Exists(tempFolder))
+                    Directory.CreateDirectory(tempFolder);
 
-                // Sort files
-                CompareProgressWindow.Text += Environment.NewLine + "Beginning file 1 sorting.";
+                _comparisonTempFile = $"{tempFolder}comparison_{fileTime}_temp.csv";
+                _rowOrphans1TempFile = $"{tempFolder}comparison_orphans1_{fileTime}_temp.csv";
+                _rowOrphans2TempFile = $"{tempFolder}comparison_orphans2_{fileTime}_temp.csv";
+
+                // Sort file 1
+                CompareProgressWindow.Text += Environment.NewLine + "Sorting File 1.";
                 var sorting1Stopwatch = new Stopwatch();
                 sorting1Stopwatch.Start();
-                await CsvFileSorter.SortFileInMemory(_file1Name, _identifierColumns, file1SortedName);
+                await Task.Run(() => CsvFileSorter.SortFileInMemory(_file1Name, _identifierColumns, file1SortedName));
                 sorting1Stopwatch.Stop();
-                CompareProgressWindow.Text += Environment.NewLine + "Finished file 1 sorting " + TimeSpanAsEnglish(sorting1Stopwatch.Elapsed);
+                CompareProgressWindow.Text += Environment.NewLine + "Finished sorting File 1 in " + TimeSpanAsEnglish(sorting1Stopwatch.Elapsed);
 
-                CompareProgressWindow.Text += Environment.NewLine + "Beginning file 2 sorting.";
+                // Sort file 2
+                CompareProgressWindow.Text += Environment.NewLine + "Sorting File 2.";
                 var sorting2Stopwatch = new Stopwatch();
                 sorting2Stopwatch.Start();
-                await CsvFileSorter.SortFileInMemory(_file2Name, _identifierColumns, file2SortedName);
+                await Task.Run(() => CsvFileSorter.SortFileInMemory(_file2Name, _identifierColumns, file2SortedName));
                 sorting2Stopwatch.Stop();
-                CompareProgressWindow.Text += Environment.NewLine + "Finished file 2 sorting " + TimeSpanAsEnglish(sorting2Stopwatch.Elapsed);
+                CompareProgressWindow.Text += Environment.NewLine + "Finished sorting File 2 in " + TimeSpanAsEnglish(sorting2Stopwatch.Elapsed);
 
                 // Compare line by line.
-                CompareProgressWindow.Text += Environment.NewLine + "Beginning file comparison.";
+                CompareProgressWindow.Text += Environment.NewLine + "Comparing the files.";
                 var comparisonStopWatch = new Stopwatch();
                 comparisonStopWatch.Start();
-                var orphans = await CsvFileComparer.Compare(file1SortedName, file2SortedName, _identifierColumns, _inclusionColumns, _exclusionColumns, _comparisonTempFile, _rowOrphans1TempFile, _rowOrphans2TempFile);
+                var orphans = await Task.Run(() => CsvFileComparer.Compare(file1SortedName, file2SortedName, _identifierColumns, _inclusionColumns, _exclusionColumns, _comparisonTempFile, _rowOrphans1TempFile, _rowOrphans2TempFile));
                 comparisonStopWatch.Stop();
                 _columnOrphans1 = orphans.ColumnOrphans1;
                 _columnOrphans2 = orphans.ColumnOrphans2;
-                CompareProgressWindow.Text += Environment.NewLine + "Finished file comparison in " + TimeSpanAsEnglish(comparisonStopWatch.Elapsed);
+                CompareProgressWindow.Text += Environment.NewLine + "Finished comparing the files in " + TimeSpanAsEnglish(comparisonStopWatch.Elapsed);
 
                 ButtonGrid.Visibility = Visibility.Visible;
 
