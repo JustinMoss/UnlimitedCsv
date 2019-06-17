@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>16932e52-88e5-4937-a4e0-9328394233fe</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>CsvCompare.Library</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CsvFileComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CsvFileSorter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CsvParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CsvReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CsvWriter.cs" />
+  </ItemGroup>
+</Project>
