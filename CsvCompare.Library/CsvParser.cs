@@ -8,10 +8,10 @@ namespace CsvCompare.Library
 {
     public class CsvParser
     {
-        public const int BackslashNCode = 10;
-        public const int BackslashRCode = 13;
-        public const int QuoteCode = 34;
-        public const int CommaCode = 44;
+        public static int BackslashNCode { get; set; } = 10;
+        public static int BackslashRCode { get; set; } = 13;
+        public static int EscapeCode { get; set; } = 34;
+        public static int DelimiterCode { get; set; } = 44;
 
         public static DataTable CreateDataTable(TextReader reader)
         {
@@ -42,30 +42,32 @@ namespace CsvCompare.Library
             var builder = new StringBuilder();
             while ((charCode = reader.Read()) != -1)
             {
-                switch (charCode)
+                if (charCode == DelimiterCode)
                 {
-                    case CommaCode:
-                        if (builder.Length > 0)
-                            yield return GetNonQuotedStringValue(builder);
-                        yield return new Token(TokenType.Delimiter);
-                        break;
-                    case BackslashRCode when reader.Peek() == BackslashNCode:
-                        if (builder.Length > 0)
-                            yield return GetNonQuotedStringValue(builder);
-                        reader.Read();
-                        yield return new Token(TokenType.Newline);
-                        break;
-                    case BackslashNCode:
-                        if (builder.Length > 0)
-                            yield return GetNonQuotedStringValue(builder);
-                        yield return new Token(TokenType.Newline);
-                        break;
-                    case QuoteCode:
-                        yield return GetQuotedStringValue(reader);
-                        break;
-                    default:
-                        builder.Append((char)charCode);
-                        break;
+                    if (builder.Length > 0)
+                        yield return GetNonQuotedStringValue(builder);
+                    yield return new Token(TokenType.Delimiter);
+                }
+                else if (charCode == BackslashRCode && reader.Peek() == BackslashNCode)
+                {
+                    if (builder.Length > 0)
+                        yield return GetNonQuotedStringValue(builder);
+                    reader.Read();
+                    yield return new Token(TokenType.Newline);
+                }
+                else if (charCode == BackslashNCode)
+                {
+                    if (builder.Length > 0)
+                        yield return GetNonQuotedStringValue(builder);
+                    yield return new Token(TokenType.Newline);
+                }
+                else if (charCode == EscapeCode)
+                {
+                    yield return GetQuotedStringValue(reader);
+                }
+                else
+                {
+                    builder.Append((char)charCode);
                 }
             }
         }
@@ -107,9 +109,9 @@ namespace CsvCompare.Library
             int code;
             while ((code = reader.Read()) != -1)
             {
-                if (code == QuoteCode)
+                if (code == EscapeCode)
                 {
-                    if (reader.Peek() == QuoteCode)
+                    if (reader.Peek() == EscapeCode)
                     {
                         reader.Read();
                         builder.Append((char)code);

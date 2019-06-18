@@ -10,16 +10,16 @@ namespace CsvCompare.Library
     {
         private readonly StreamWriter _writer;
 
+        public static readonly char BackslashNChar = (char)CsvParser.BackslashNCode;
+        public static readonly char BackslashRChar = (char)CsvParser.BackslashRCode;
+        public static readonly char EscapeChar = (char)CsvParser.EscapeCode;
+        public static readonly char DelimiterChar = (char)CsvParser.DelimiterCode;
+
         public CsvWriter(string fileName)
         {
             _writer = new StreamWriter(fileName);
         }
 
-        public const char BackslashNChar = (char)10;
-        public const char BackslashRChar = (char)13;
-        public const char QuoteChar = (char)34;
-        public const char CommaChar = (char)44;
-        
         public async Task WriteRow(IEnumerable<string> row)
         {
             await WriteRowToWriter(row, _writer);
@@ -52,9 +52,8 @@ namespace CsvCompare.Library
             if (element == null)
                 return null;
 
-            // TODO: Optimize by using a single (maybe two) loop.
-            if(element.IndexOfAny(new[] {QuoteChar, BackslashNChar, BackslashRChar, CommaChar }) >= 0)
-                return QuoteChar + element.Replace("\"", "\"\"") + QuoteChar;
+            if (element.IndexOfAny(new[] { EscapeChar, BackslashNChar, BackslashRChar, DelimiterChar }) >= 0)
+                return EscapeChar + element.Replace("\"", "\"\"") + EscapeChar;
 
             return element;
         }
