@@ -46,7 +46,6 @@ namespace CsvCompare.Library
                 columnOrphans1 = headers1.Where(h => !compareColumnsSet.Contains(h) && !exclusionColumns.Contains(h)).ToList();
                 columnOrphans2 = headers2.Where(h => !compareColumnsSet.Contains(h) && !exclusionColumns.Contains(h)).ToList();
 
-                // TODO: Can I extract this to a common place for sorting AND comparing
                 // Find identifer columns
                 var identifierLocations1 = new List<int>();
                 for (var i = 0; i < headers1.Count; i++)

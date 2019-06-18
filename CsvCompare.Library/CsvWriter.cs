@@ -47,6 +47,20 @@ namespace CsvCompare.Library
                     await writer.WriteLineAsync(string.Join(",", row.Select(EscapeCsvElement)));
         }
 
+        public static async Task CopyFileToWriter(string comparisonTempFile, StreamWriter resultsWriter)
+        {
+            using (var comparisonReader = new StreamReader(comparisonTempFile))
+            {
+                var read = -1;
+                var buffer = new char[4096];
+                while (read != 0)
+                {
+                    read = comparisonReader.Read(buffer, 0, buffer.Length);
+                    await resultsWriter.WriteAsync(buffer, 0, read);
+                }
+            }
+        }
+
         private static string EscapeCsvElement(string element)
         {
             if (element == null)

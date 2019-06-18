@@ -267,45 +267,17 @@ namespace CsvCompare
             {
                 // Differences
                 await CsvWriter.WriteRowToWriter(new[] { "Differences: " }, resultsWriter);
-                using (var comparisonReader = new StreamReader(comparisonTempFile))
-                {
-                    // TODO: Extract or improve
-                    var read = -1;
-                    var buffer = new char[4096];
-                    while (read != 0)
-                    {
-                        read = comparisonReader.Read(buffer, 0, buffer.Length);
-                        resultsWriter.Write(buffer, 0, read);
-                    }
-                }
+                await CsvWriter.CopyFileToWriter(comparisonTempFile, resultsWriter);
 
                 // Extra Rows 1
                 await CsvWriter.WriteRowToWriter(null, resultsWriter);
                 await CsvWriter.WriteRowToWriter(new[] { "File 1 Extra Rows:" }, resultsWriter);
-                using (var extraRows1Reader = new StreamReader(rowOrphans1TempFile))
-                {
-                    var read = -1;
-                    var buffer = new char[4096];
-                    while (read != 0)
-                    {
-                        read = extraRows1Reader.Read(buffer, 0, buffer.Length);
-                        resultsWriter.Write(buffer, 0, read);
-                    }
-                }
+                await CsvWriter.CopyFileToWriter(rowOrphans1TempFile, resultsWriter);
 
                 // Extra Rows 2
                 await CsvWriter.WriteRowToWriter(null, resultsWriter);
                 await CsvWriter.WriteRowToWriter(new[] { "File 2 Extra Rows:" }, resultsWriter);
-                using (var extraRows2Reader = new StreamReader(rowOrphans2TempFile))
-                {
-                    var read = -1;
-                    var buffer = new char[4096];
-                    while (read != 0)
-                    {
-                        read = extraRows2Reader.Read(buffer, 0, buffer.Length);
-                        resultsWriter.Write(buffer, 0, read);
-                    }
-                }
+                await CsvWriter.CopyFileToWriter(rowOrphans2TempFile, resultsWriter);
 
                 // Extra Columns 1
                 await CsvWriter.WriteRowToWriter(null, resultsWriter);
