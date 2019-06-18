@@ -36,6 +36,37 @@ namespace CsvCompare.Library
             return dataTable;
         }
 
+        public static IList<string> GetNextRow(IEnumerator<Token> tokens)
+        {
+            var values = new List<string>();
+            var previousTokenType = TokenType.Newline;
+
+            while (tokens.MoveNext())
+            {
+                switch (tokens.Current.TokenType)
+                {
+                    case TokenType.Newline:
+                        if (previousTokenType == TokenType.Delimiter)
+                            values.Add(null);
+                        return values;
+                    case TokenType.Value:
+                        if (previousTokenType == TokenType.Value)
+                            throw new Exception("The csv is malformed. Please check for proper csv values.");
+                        values.Add(tokens.Current.Value);
+                        break;
+                    case TokenType.Delimiter:
+                        if (previousTokenType == TokenType.Delimiter)
+                            values.Add(null);
+                        break;
+                }
+                previousTokenType = tokens.Current.TokenType;
+            }
+
+            return values.Count > 0
+                ? values
+                : null;
+        }
+
         public static IEnumerable<Token> Parse(TextReader reader)
         {
             int charCode;
@@ -70,37 +101,6 @@ namespace CsvCompare.Library
                     builder.Append((char)charCode);
                 }
             }
-        }
-
-        public static IList<string> GetNextRow(IEnumerator<Token> tokens)
-        {
-            var values = new List<string>();
-            var previousTokenType = TokenType.Newline;
-
-            while (tokens.MoveNext())
-            {
-                switch (tokens.Current.TokenType)
-                {
-                    case TokenType.Newline:
-                        if (previousTokenType == TokenType.Delimiter)
-                            values.Add(null);
-                        return values;
-                    case TokenType.Value:
-                        if (previousTokenType == TokenType.Value)
-                            throw new Exception("The csv is malformed. Please check for proper csv values.");
-                        values.Add(tokens.Current.Value);
-                        break;
-                    case TokenType.Delimiter:
-                        if (previousTokenType == TokenType.Delimiter)
-                            values.Add(null);
-                        break;
-                }
-                previousTokenType = tokens.Current.TokenType;
-            }
-
-            return values.Count > 0
-                ? values
-                : null;
         }
 
         private static Token GetQuotedStringValue(TextReader reader)
