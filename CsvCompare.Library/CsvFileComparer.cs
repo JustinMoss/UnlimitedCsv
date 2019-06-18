@@ -8,7 +8,7 @@ namespace CsvCompare.Library
     public class CsvFileComparer
     {
         public static async Task<(List<string> ColumnOrphans1, List<string> ColumnOrphans2)> Compare(
-            string file1SortedName, string file2SortedName, List<string> identifierColumns, List<string> inclusionColumns, 
+            string file1Name, string file2Name, List<string> identifierColumns, List<string> inclusionColumns, 
             List<string> exclusionColumns, string comparisonTempFile, string rowOrphans1TempFile, string rowOrphans2TempFile,
             bool ignoreCase)
         {
@@ -16,8 +16,8 @@ namespace CsvCompare.Library
             
             List<string> columnOrphans1;
             List<string> columnOrphans2;
-            using (var reader1 = new CsvReader(file1SortedName))
-            using (var reader2 = new CsvReader(file2SortedName))
+            using (var reader1 = new CsvReader(file1Name))
+            using (var reader2 = new CsvReader(file2Name))
             using (var comparisonTempWriter = new CsvWriter(comparisonTempFile))
             using (var rowOrphans1TempWriter = new CsvWriter(rowOrphans1TempFile))
             using (var rowOrphans2TempWriter = new CsvWriter(rowOrphans2TempFile))
@@ -46,6 +46,7 @@ namespace CsvCompare.Library
                 columnOrphans1 = headers1.Where(h => !compareColumnsSet.Contains(h) && !exclusionColumns.Contains(h)).ToList();
                 columnOrphans2 = headers2.Where(h => !compareColumnsSet.Contains(h) && !exclusionColumns.Contains(h)).ToList();
 
+                // TODO: Can I extract this to a common place for sorting AND comparing
                 // Find identifer columns
                 var identifierLocations1 = new List<int>();
                 for (var i = 0; i < headers1.Count; i++)
@@ -82,7 +83,7 @@ namespace CsvCompare.Library
                 {
                     var key1 = string.Concat(identifierLocations1.Select(i => row1[i]));
                     var key2 = string.Concat(identifierLocations2.Select(i => row2[i]));
-                    var keyCompare = string.CompareOrdinal(key1, key2);
+                    var keyCompare = string.Compare(key1, key2, stringCompareType);
                     if (keyCompare == 0)
                     {
                         // Matched row, time to compare

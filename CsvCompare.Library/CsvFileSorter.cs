@@ -9,13 +9,10 @@ namespace CsvCompare.Library
     {
         public static async Task SortFileInMemory(string fileName, List<string> identifierColumns, string fileSortedName)
         {
-            using (var reader = new StreamReader(fileName))
+            using (var reader = new CsvReader(fileName))
             {
                 // Determine identifier column locations
-                var parsedTokens = CsvParser.Parse(reader);
-                var enumerator = parsedTokens.GetEnumerator();
-
-                var headers = CsvParser.GetNextRow(enumerator);
+                var headers = reader.GetNextRow();
 
                 var identifierLocations = new List<int>();
                 for (var i = 0; i < headers.Count; i++)
@@ -25,7 +22,7 @@ namespace CsvCompare.Library
                 var sorted = new SortedDictionary<string, IList<string>>();
                 while (true)
                 {
-                    var row = CsvParser.GetNextRow(enumerator);
+                    var row = reader.GetNextRow();
                     if (row == null) break;
 
                     var key = string.Concat(identifierLocations.Select(i => row[i]));

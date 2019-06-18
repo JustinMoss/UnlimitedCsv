@@ -135,13 +135,13 @@ namespace CsvCompare
                 var file1SortedName = _alreadySorted ? _file1Name : _file1Name.Replace(".csv", "_sorted.csv");
                 var file2SortedName = _alreadySorted ? _file2Name : _file2Name.Replace(".csv", "_sorted.csv");
 
-                var tempFolder = $"{Path.GetTempPath()}CsvCompare\\";
+                var tempFolder = Path.Combine(Path.GetTempPath(), "CsvCompare");
                 if (!Directory.Exists(tempFolder))
                     Directory.CreateDirectory(tempFolder);
 
-                _comparisonTempFile = $"{tempFolder}comparison_{fileTime}_temp.csv";
-                _rowOrphans1TempFile = $"{tempFolder}comparison_orphans1_{fileTime}_temp.csv";
-                _rowOrphans2TempFile = $"{tempFolder}comparison_orphans2_{fileTime}_temp.csv";
+                _comparisonTempFile = Path.Combine(tempFolder, $"comparison_{fileTime}_temp.csv");
+                _rowOrphans1TempFile = Path.Combine(tempFolder, $"comparison_orphans1_{fileTime}_temp.csv");
+                _rowOrphans2TempFile = Path.Combine(tempFolder, $"comparison_orphans2_{fileTime}_temp.csv");
 
                 // Sort file 1
                 if (_alreadySorted)
@@ -180,7 +180,7 @@ namespace CsvCompare
 
                 if (new FileInfo(_comparisonTempFile).Length + 
                     new FileInfo(_rowOrphans1TempFile).Length +
-                    new FileInfo(_rowOrphans2TempFile).Length < 10000000)
+                    new FileInfo(_rowOrphans2TempFile).Length < 10_000_000)
                 {
                     // Small results, display results
                     SetupDisplayValues();
@@ -269,6 +269,7 @@ namespace CsvCompare
                 await CsvWriter.WriteRowToWriter(new[] { "Differences: " }, resultsWriter);
                 using (var comparisonReader = new StreamReader(comparisonTempFile))
                 {
+                    // TODO: Extract or improve
                     var read = -1;
                     var buffer = new char[4096];
                     while (read != 0)

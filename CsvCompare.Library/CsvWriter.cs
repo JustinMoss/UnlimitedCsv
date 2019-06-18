@@ -52,8 +52,8 @@ namespace CsvCompare.Library
             if (element == null)
                 return null;
 
-            if (element.Contains(QuoteChar) || element.Contains(BackslashRChar) ||
-                element.Contains(BackslashNChar) || element.Contains(CommaChar))
+            // TODO: Optimize by using a single (maybe two) loop.
+            if(element.IndexOfAny(new[] {QuoteChar, BackslashNChar, BackslashRChar, CommaChar }) >= 0)
                 return QuoteChar + element.Replace("\"", "\"\"") + QuoteChar;
 
             return element;
