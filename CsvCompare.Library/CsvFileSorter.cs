@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,31 +10,35 @@ namespace CsvCompare.Library
     {
         public static async Task SortFileInMemory(string fileName, List<string> identifierColumns, string fileSortedName)
         {
-            using (var reader = new CsvReader(fileName))
+            using (var reader = new StreamReader(fileName))
             {
-                // Determine identifier column locations
-                var headers = reader.GetNextRow();
+                var headerRow = await reader.ReadLineAsync();
+                var headerTokens = CsvParser.Parse(headerRow + Environment.NewLine);
+                var headers = CsvParser.GetNextRow(headerTokens.GetEnumerator());
 
                 var identifierLocations = new List<int>();
                 for (var i = 0; i < headers.Count; i++)
                     if (identifierColumns.Contains(headers[i]))
                         identifierLocations.Add(i);
 
-                var sorted = new SortedDictionary<string, IList<string>>();
-                while (true)
+                string rowText;
+                var row = new string[headers.Count];
+                var sorted = new SortedDictionary<string, string>();
+                while ((rowText = reader.ReadLine()) != null)
                 {
-                    var row = reader.GetNextRow();
-                    if (row == null) break;
+                    var parsed = CsvParser.Parse(rowText + Environment.NewLine);
+                    CsvParser.FillNextRow(parsed.GetEnumerator(), row);
 
                     var key = string.Concat(identifierLocations.Select(i => row[i]));
-                    sorted.Add(key, row);
+                    sorted.Add(key, rowText);
                 }
 
-                var output = sorted.ToList().Select(kv => kv.Value).ToList();
-                output.Insert(0, headers);
-
                 using (var writer = new StreamWriter(fileSortedName))
-                    await CsvWriter.WriteEnumerableToWriter(output, writer);
+                {
+                    await writer.WriteLineAsync(headerRow);
+                    foreach (var value in sorted.Values)
+                        await writer.WriteLineAsync(value);
+                }
             }
         }
     }

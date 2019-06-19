@@ -36,6 +36,36 @@ namespace CsvCompare.Library
             return dataTable;
         }
 
+        public static void FillNextRow(IEnumerator<Token> tokens, string[] row)
+        {
+            var previousTokenType = TokenType.Newline;
+            var i = 0;
+            while (tokens.MoveNext())
+            {
+                switch (tokens.Current.TokenType)
+                {
+                    case TokenType.Newline:
+                        if (previousTokenType == TokenType.Delimiter)
+                            row[i] = null;
+                        return;
+                    case TokenType.Value:
+                        if (previousTokenType == TokenType.Value)
+                            throw new Exception("The csv is malformed. Please check for proper csv values.");
+                        row[i] = tokens.Current.Value;
+                        i++;
+                        break;
+                    case TokenType.Delimiter:
+                        if (previousTokenType == TokenType.Delimiter)
+                        {
+                            row[i] = tokens.Current.Value;
+                            i++;
+                        }
+                        break;
+                }
+                previousTokenType = tokens.Current.TokenType;
+            }
+        }
+
         public static IList<string> GetNextRow(IEnumerator<Token> tokens)
         {
             var values = new List<string>();
@@ -65,6 +95,42 @@ namespace CsvCompare.Library
             return values.Count > 0
                 ? values
                 : null;
+        }
+
+        public static IEnumerable<Token> Parse(string value)
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < value.Length; i++)
+            {
+                int charCode = value[i];
+                if (charCode == DelimiterCode)
+                {
+                    if (builder.Length > 0)
+                        yield return GetNonQuotedStringValue(builder);
+                    yield return new Token(TokenType.Delimiter);
+                }
+                else if (charCode == BackslashRCode && i + 1 < value.Length && value[i + 1] == BackslashNCode)
+                {
+                    if (builder.Length > 0)
+                        yield return GetNonQuotedStringValue(builder);
+                    i++;
+                    yield return new Token(TokenType.Newline);
+                }
+                else if (charCode == BackslashNCode)
+                {
+                    if (builder.Length > 0)
+                        yield return GetNonQuotedStringValue(builder);
+                    yield return new Token(TokenType.Newline);
+                }
+                else if (charCode == EscapeCode)
+                {
+                    yield return GetQuotedStringValue(value, ref i);
+                }
+                else
+                {
+                    builder.Append((char)charCode);
+                }
+            }
         }
 
         public static IEnumerable<Token> Parse(TextReader reader)
@@ -101,6 +167,33 @@ namespace CsvCompare.Library
                     builder.Append((char)charCode);
                 }
             }
+        }
+
+        private static Token GetQuotedStringValue(string value, ref int i)
+        {
+            var builder = new StringBuilder();
+            for (i++; i < value.Length; i++)
+            {
+                int code = value[i];
+                if (code == EscapeCode)
+                {
+                    if (value[i + 1] == EscapeCode)
+                    {
+                        i++;
+                        builder.Append((char)code);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    builder.Append((char)code);
+                }
+            }
+
+            return new Token(TokenType.Value, builder.ToString());
         }
 
         private static Token GetQuotedStringValue(TextReader reader)

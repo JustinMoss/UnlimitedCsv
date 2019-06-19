@@ -156,7 +156,7 @@ namespace CsvCompare
                     await Task.Run(() => CsvFileSorter.SortFileInMemory(_file1Name, _identifierColumns, file1SortedName));
                     sorting1Stopwatch.Stop();
                     CompareProgressWindow.Text += Environment.NewLine + "Finished sorting File 1 in " + TimeSpanAsEnglish(sorting1Stopwatch.Elapsed);
-
+                    
                     // Sort file 2
                     CompareProgressWindow.Text += Environment.NewLine + "Sorting File 2.";
                     var sorting2Stopwatch = new Stopwatch();
