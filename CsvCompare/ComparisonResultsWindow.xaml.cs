@@ -150,18 +150,45 @@ namespace CsvCompare
                 }
                 else
                 {
+                    // Figure out if we have room to sort in memory or we need external merge
+                    var memory = new PerformanceCounter("Memory", "Available MBytes");
+                    var memoryValue = (int)memory.NextValue();
+                    var maxFileSize = memoryValue / 10 * 1024 * 1024;
+
                     CompareProgressWindow.Text += Environment.NewLine + "Sorting File 1.";
                     var sorting1Stopwatch = new Stopwatch();
                     sorting1Stopwatch.Start();
-                    await Task.Run(() => CsvFileSorter.SortFileInMemory(_file1Name, _identifierColumns, file1SortedName));
+
+                    if (new FileInfo(_file1Name).Length < maxFileSize)
+                    {
+                        CompareProgressWindow.Text += Environment.NewLine + "Using quick memory sort for small file.";
+                        await Task.Run(() => CsvFileSorter.SortFileInMemory(_file1Name, _identifierColumns, file1SortedName));
+                    }
+                    else
+                    {
+                        CompareProgressWindow.Text += Environment.NewLine + "Using slow file sort for large file.";
+                        await Task.Run(() => CsvFileSorter.ExternalMergeSort(_file1Name, maxFileSize, _identifierColumns, file1SortedName, tempFolder));
+                    }
+
                     sorting1Stopwatch.Stop();
                     CompareProgressWindow.Text += Environment.NewLine + "Finished sorting File 1 in " + TimeSpanAsEnglish(sorting1Stopwatch.Elapsed);
-                    
+
                     // Sort file 2
                     CompareProgressWindow.Text += Environment.NewLine + "Sorting File 2.";
                     var sorting2Stopwatch = new Stopwatch();
                     sorting2Stopwatch.Start();
-                    await Task.Run(() => CsvFileSorter.SortFileInMemory(_file2Name, _identifierColumns, file2SortedName));
+
+                    if (new FileInfo(_file2Name).Length < maxFileSize)
+                    {
+                        CompareProgressWindow.Text += Environment.NewLine + "Using quick memory sort for small file.";
+                        await Task.Run(() => CsvFileSorter.SortFileInMemory(_file2Name, _identifierColumns, file2SortedName));
+                    }
+                    else
+                    {
+                        CompareProgressWindow.Text += Environment.NewLine + "Using slow file sort for large file.";
+                        await Task.Run(() => CsvFileSorter.ExternalMergeSort(_file2Name, maxFileSize, _identifierColumns, file2SortedName, tempFolder));
+                    }
+
                     sorting2Stopwatch.Stop();
                     CompareProgressWindow.Text += Environment.NewLine + "Finished sorting File 2 in " + TimeSpanAsEnglish(sorting2Stopwatch.Elapsed);
                 }
