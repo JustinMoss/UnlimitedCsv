@@ -177,15 +177,10 @@ namespace CsvCompare.Library
                 int code = value[i];
                 if (code == EscapeCode)
                 {
-                    if (value[i + 1] == EscapeCode)
-                    {
-                        i++;
-                        builder.Append((char)code);
-                    }
-                    else
-                    {
+                    if (i == value.Length - 1 || value[i + 1] != EscapeCode)
                         break;
-                    }
+                    builder.Append((char)code);
+                    i++;
                 }
                 else
                 {
