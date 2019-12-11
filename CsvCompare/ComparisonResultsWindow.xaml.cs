@@ -152,8 +152,8 @@ namespace CsvCompare
                 {
                     // Figure out if we have room to sort in memory or we need external merge
                     var memory = new PerformanceCounter("Memory", "Available MBytes");
-                    var memoryValue = (int)memory.NextValue();
-                    var maxFileSize = memoryValue / 10 * 1024 * 1024;
+                    var memoryValue = (long)memory.NextValue();
+                    long maxFileSize = memoryValue / 10 * 1024 * 1024;
 
                     CompareProgressWindow.Text += Environment.NewLine + "Sorting File 1.";
                     var sorting1Stopwatch = new Stopwatch();

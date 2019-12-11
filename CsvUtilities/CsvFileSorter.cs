@@ -22,7 +22,7 @@ namespace CsvUtilities
         /// <param name="identifierColumns">The columns to use when matching up lines for row comparison.</param>
         /// <param name="fileSortedName">The name of the file to save the sorted results into.</param>
         /// <param name="tempFolder">The folder path for saving the temporary split files.</param>
-        public static async Task ExternalMergeSort(string fileName, int maxFileSize, List<string> identifierColumns, string fileSortedName, string tempFolder)
+        public static async Task ExternalMergeSort(string fileName, long maxFileSize, List<string> identifierColumns, string fileSortedName, string tempFolder)
         {
             // Split files to max size  files
             var (longestRow, splitFiles) = SplitFiles(fileName, maxFileSize, tempFolder);
@@ -95,7 +95,7 @@ namespace CsvUtilities
         /// <param name="maxFileSize">The maximum file size.</param>
         /// <param name="tempFolder">The folder path for saving the split files.</param>
         /// <returns>A Tuple of the longest row length and a List of the split file names.</returns>
-        public static (int, List<string>) SplitFiles(string fileName, int maxFileSize, string tempFolder)
+        public static (int, List<string>) SplitFiles(string fileName, long maxFileSize, string tempFolder)
         {
             var splitCount = 0;
             var longestRow = 0;
@@ -153,7 +153,7 @@ namespace CsvUtilities
         /// <param name="longestRow">The length of the longest data row.</param>
         /// <param name="identifierColumns">The columns to use when matching up lines for comparison.</param>
         /// <param name="fileSortedName">The name of the file to save the sorted and merged results into.</param>
-        public static void MergeSortedFiles(string fileName, int maxFileSize, List<string> splitFiles, int longestRow, List<string> identifierColumns, string fileSortedName)
+        public static void MergeSortedFiles(string fileName, long maxFileSize, List<string> splitFiles, int longestRow, List<string> identifierColumns, string fileSortedName)
         {
             var filesCount = splitFiles.Count;
 
@@ -238,7 +238,7 @@ namespace CsvUtilities
                 readers[i].Close();
         }
 
-        private static void FillQueue(StreamReader reader, Queue<(string Key, string Value)> queue, int recordsPerQueue, List<int> identifierLocations)
+        private static void FillQueue(StreamReader reader, Queue<(string Key, string Value)> queue, long recordsPerQueue, List<int> identifierLocations)
         {
             for (var j = 0; j < recordsPerQueue; j++)
             {
