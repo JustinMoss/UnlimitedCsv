@@ -3,10 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CsvCompare.Library
+namespace CsvUtilities
 {
+    /// <summary>
+    /// A set of methods for comparing CSV files.
+    /// </summary>
     public class CsvFileComparer
     {
+        /// <summary>
+        /// Compares two CSV files. This creates a temporary file that contains the results of the comparison.
+        /// It will 
+        /// </summary>
+        /// <param name="file1Name">The name of the first file for comparison.</param>
+        /// <param name="file2Name">The name of the second file for comparison.</param>
+        /// <param name="identifierColumns">The columns to use when matching up lines for row comparison.</param>
+        /// <param name="inclusionColumns">The non-identifier columns that should be included in every comparison result row.</param>
+        /// <param name="exclusionColumns">The columns that should not be considered for comparison.</param>
+        /// <param name="comparisonTempFile">The name of the file to store the comparison results.</param>
+        /// <param name="rowOrphans1TempFile">The name of the file to store rows from file one that have no matching row in file two.</param>
+        /// <param name="rowOrphans2TempFile">The name of the file to store rows from file two that have no matching row in file one.</param>
+        /// <param name="ignoreCase">Whether or not to ignore casing when comparing values.</param>
+        /// <returns>A tuple of list of columns that appear only in file one or file two, but not both.</returns>
         public static async Task<(List<string> ColumnOrphans1, List<string> ColumnOrphans2)> Compare(
             string file1Name, string file2Name, List<string> identifierColumns, List<string> inclusionColumns, 
             List<string> exclusionColumns, string comparisonTempFile, string rowOrphans1TempFile, string rowOrphans2TempFile,

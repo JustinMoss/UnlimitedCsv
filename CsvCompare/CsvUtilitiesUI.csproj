@@ -64,7 +64,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -148,7 +148,11 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="..\CsvCompare.Library\CsvCompare.Library.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\CsvUtilities\CsvUtilities.csproj">
+      <Project>{56b69fd5-b6bb-4b14-854e-1924f83e643a}</Project>
+      <Name>CsvUtilities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
