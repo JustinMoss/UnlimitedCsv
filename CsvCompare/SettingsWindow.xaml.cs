@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using CsvCompare.Library;
+using CsvUtilities;
 using Microsoft.Win32;
 
 namespace CsvCompare

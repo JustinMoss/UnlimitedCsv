@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using CsvCompare.Library;
+using CsvUtilities;
 using Microsoft.Win32;
 
 namespace CsvCompare
