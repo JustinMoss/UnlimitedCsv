@@ -48,12 +48,12 @@ namespace CsvUtilities
         }
 
         /// <summary>
-        /// Sorts a CSV file in memory. This load the entire file into memory at one time, with a small amount of overhead for sorting.
+        /// Sorts a CSV file in memory. This loads the entire file into memory at one time, with a small amount of overhead for sorting.
         /// </summary>
         /// <param name="fileName">The name of the file to sort.</param>
         /// <param name="identifierColumns">The columns to use when matching up lines for comparison.</param>
         /// <param name="fileSortedName">The name of the file to save the sorted results into.</param>
-        /// <returns></returns>
+        /// <returns>An awaitable <see cref="Task"/></returns>
         public static async Task SortFileInMemory(string fileName, List<string> identifierColumns, string fileSortedName)
         {
             using (var reader = new StreamReader(fileName))
@@ -76,7 +76,15 @@ namespace CsvUtilities
                     CsvParser.FillNextRow(parsed.GetEnumerator(), row);
 
                     var key = string.Concat(identifierLocations.Select(i => row[i]));
-                    sorted.Add(key, rowText);
+
+                    try
+                    {
+                        sorted.Add(key, rowText);
+                    }
+                    catch (ArgumentException)
+                    {
+                        throw new DuplicateIdentifierException(identifierColumns, identifierLocations.Select(i => row[i]).ToList());
+                    }
                 }
 
                 using (var writer = new StreamWriter(fileSortedName))

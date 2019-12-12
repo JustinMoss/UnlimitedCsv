@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using CsvUtilities;
@@ -218,6 +219,15 @@ namespace CsvCompare
                     ErrorLabel.Content = "Results file is too large for display. Click 'Export' for the comparison results.";
                     ErrorLabel.Visibility = Visibility.Visible;
                 }
+            }
+            catch (DuplicateIdentifierException ex)
+            {
+                var errorBuilder = new StringBuilder($"Error: A duplicate identifier was found while sorting.{Environment.NewLine}Identifiers:{Environment.NewLine}");
+                for (int i = 0; i < ex.IdentifierNames.Count; i++)
+                    errorBuilder.AppendLine($"{ex.IdentifierNames[i]} - {ex.IdentifierValues[i]}");
+
+                ErrorLabel.Content = errorBuilder.ToString();
+                ErrorLabel.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
