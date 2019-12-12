@@ -95,8 +95,24 @@ namespace CsvUtilities
                 var row1 = reader1.GetNextRow();
                 var row2 = reader2.GetNextRow();
 
-                while (row1 != null && row2 != null)
+                while (row1 != null || row2 != null)
                 {
+                    if (row1 == null)
+                    {
+                        // Output to extra rows file for file 2
+                        await rowOrphans2TempWriter.WriteRow(row2);
+                        row2 = reader2.GetNextRow();
+                        continue;
+                    }
+
+                    if(row2 == null)
+                    {
+                        // Output to extra rows file for file 1
+                        await rowOrphans1TempWriter.WriteRow(row1);
+                        row1 = reader1.GetNextRow();
+                        continue;
+                    }
+
                     var key1 = string.Concat(identifierLocations1.Select(i => row1[i]));
                     var key2 = string.Concat(identifierLocations2.Select(i => row2[i]));
                     var keyCompare = string.Compare(key1, key2, stringCompareType);
