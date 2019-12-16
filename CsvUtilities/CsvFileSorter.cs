@@ -5,11 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CsvCompare.Library
+namespace CsvUtilities
 {
+    /// <summary>
+    /// Provides a set of methods for sorting CSV files.
+    /// </summary>
     public class CsvFileSorter
     {
-        public static async Task ExternalMergeSort(string fileName, int maxFileSize, List<string> identifierColumns, string fileSortedName, string tempFolder)
+        /// <summary>
+        /// Sorts a CSV file using an external merge sort. This creates and eventually deletes many temporary files
+        /// to store the steps in the sorting process. This sacrifices speed while keeping memory consumption as
+        /// low as possible. Memory use should not be much larger than the <paramref name="maxFileSize"/>."/>
+        /// </summary>
+        /// <param name="fileName">The name of the file to sort.</param>
+        /// <param name="maxFileSize">The maximum file size allowed for in memory sorts. This controls how much overall memory gets used.</param>
+        /// <param name="identifierColumns">The columns to use when matching up lines for row comparison.</param>
+        /// <param name="fileSortedName">The name of the file to save the sorted results into.</param>
+        /// <param name="tempFolder">The folder path for saving the temporary split files.</param>
+        public static async Task ExternalMergeSort(string fileName, long maxFileSize, List<string> identifierColumns, string fileSortedName, string tempFolder)
         {
             // Split files to max size  files
             var (longestRow, splitFiles) = SplitFiles(fileName, maxFileSize, tempFolder);
@@ -24,7 +37,7 @@ namespace CsvCompare.Library
             }
 
             // Merge files
-            MergeFiles(fileName, maxFileSize, splitFiles, longestRow, identifierColumns, fileSortedName);
+            MergeSortedFiles(fileName, maxFileSize, splitFiles, longestRow, identifierColumns, fileSortedName);
 
             // Clean up
             for (var i = 0; i < splitFiles.Count; i++)
@@ -34,6 +47,13 @@ namespace CsvCompare.Library
             }
         }
 
+        /// <summary>
+        /// Sorts a CSV file in memory. This loads the entire file into memory at one time, with a small amount of overhead for sorting.
+        /// </summary>
+        /// <param name="fileName">The name of the file to sort.</param>
+        /// <param name="identifierColumns">The columns to use when matching up lines for comparison.</param>
+        /// <param name="fileSortedName">The name of the file to save the sorted results into.</param>
+        /// <returns>An awaitable <see cref="Task"/></returns>
         public static async Task SortFileInMemory(string fileName, List<string> identifierColumns, string fileSortedName)
         {
             using (var reader = new StreamReader(fileName))
@@ -56,7 +76,15 @@ namespace CsvCompare.Library
                     CsvParser.FillNextRow(parsed.GetEnumerator(), row);
 
                     var key = string.Concat(identifierLocations.Select(i => row[i]));
-                    sorted.Add(key, rowText);
+
+                    try
+                    {
+                        sorted.Add(key, rowText);
+                    }
+                    catch (ArgumentException)
+                    {
+                        throw new DuplicateIdentifierException(identifierColumns, identifierLocations.Select(i => row[i]).ToList());
+                    }
                 }
 
                 using (var writer = new StreamWriter(fileSortedName))
@@ -68,7 +96,14 @@ namespace CsvCompare.Library
             }
         }
 
-        private static (int, List<string>) SplitFiles(string fileName, int maxFileSize, string tempFolder)
+        /// <summary>
+        /// Breaks a file into smaller files with a maximum size of <paramref name="maxFileSize"/>.
+        /// </summary>
+        /// <param name="fileName">The name of the file to break into smaller files.</param>
+        /// <param name="maxFileSize">The maximum file size.</param>
+        /// <param name="tempFolder">The folder path for saving the split files.</param>
+        /// <returns>A Tuple of the longest row length and a List of the split file names.</returns>
+        public static (int, List<string>) SplitFiles(string fileName, long maxFileSize, string tempFolder)
         {
             var splitCount = 0;
             var longestRow = 0;
@@ -117,11 +152,21 @@ namespace CsvCompare.Library
             return (longestRow, files);
         }
 
-        private static void MergeFiles(string fileName, int maxFileSize, List<string> splitFiles, int longestRow, List<string> identifierColumns, string fileSortedName)
+        /// <summary>
+        /// Merges the split and sorted individual files into a single sorted file.
+        /// </summary>
+        /// <param name="fileName">The name of the original file.</param>
+        /// <param name="maxFileSize">The maximum file size.</param>
+        /// <param name="splitFiles">A list of the file names to merge.</param>
+        /// <param name="longestRow">The length of the longest data row.</param>
+        /// <param name="identifierColumns">The columns to use when matching up lines for comparison.</param>
+        /// <param name="fileSortedName">The name of the file to save the sorted and merged results into.</param>
+        public static void MergeSortedFiles(string fileName, long maxFileSize, List<string> splitFiles, int longestRow, List<string> identifierColumns, string fileSortedName)
         {
             var filesCount = splitFiles.Count;
 
-            var recordsPerQueue = maxFileSize / longestRow / filesCount; // This should be based on some logic.  Maybe - Max Memory / Num Queues / Max Record Size
+            // Determine how many records for each sorting queue
+            var recordsPerQueue = maxFileSize / longestRow / filesCount;
             if (recordsPerQueue < 1)
                 recordsPerQueue = 1;
 
@@ -201,7 +246,7 @@ namespace CsvCompare.Library
                 readers[i].Close();
         }
 
-        private static void FillQueue(StreamReader reader, Queue<(string Key, string Value)> queue, int recordsPerQueue, List<int> identifierLocations)
+        private static void FillQueue(StreamReader reader, Queue<(string Key, string Value)> queue, long recordsPerQueue, List<int> identifierLocations)
         {
             for (var j = 0; j < recordsPerQueue; j++)
             {

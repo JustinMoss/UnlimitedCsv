@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using CsvCompare.Library;
+using CsvUtilities;
 using Microsoft.Win32;
 
-namespace CsvCompare
+namespace CsvUtilitiesUI
 {
     /// <summary>
     /// Interaction logic for ComparisonWindow.xaml
@@ -40,7 +41,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                ErrorLabel.Text = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
                 ErrorLabel.Visibility = Visibility.Visible;
             }
         }
@@ -61,7 +62,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                ErrorLabel.Text = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
                 ErrorLabel.Visibility = Visibility.Visible;
             }
         }
@@ -85,7 +86,7 @@ namespace CsvCompare
             catch (Exception ex)
             {
                 EnableButtons();
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                ErrorLabel.Text = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
                 ErrorLabel.Visibility = Visibility.Visible;
             }
         }
@@ -104,7 +105,7 @@ namespace CsvCompare
             }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                ErrorLabel.Text = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
                 ErrorLabel.Visibility = Visibility.Visible;
             }
         }
@@ -135,7 +136,7 @@ namespace CsvCompare
                 var file1SortedName = _alreadySorted ? _file1Name : _file1Name.Replace(".csv", "_sorted.csv");
                 var file2SortedName = _alreadySorted ? _file2Name : _file2Name.Replace(".csv", "_sorted.csv");
 
-                var tempFolder = Path.Combine(Path.GetTempPath(), "CsvCompare");
+                var tempFolder = Path.Combine(Path.GetTempPath(), "CsvUtilitiesUI");
                 if (!Directory.Exists(tempFolder))
                     Directory.CreateDirectory(tempFolder);
 
@@ -152,8 +153,8 @@ namespace CsvCompare
                 {
                     // Figure out if we have room to sort in memory or we need external merge
                     var memory = new PerformanceCounter("Memory", "Available MBytes");
-                    var memoryValue = (int)memory.NextValue();
-                    var maxFileSize = memoryValue / 10 * 1024 * 1024;
+                    var memoryValue = (long)memory.NextValue();
+                    long maxFileSize = memoryValue / 10 * 1024 * 1024;
 
                     CompareProgressWindow.Text += Environment.NewLine + "Sorting File 1.";
                     var sorting1Stopwatch = new Stopwatch();
@@ -215,14 +216,25 @@ namespace CsvCompare
                 }
                 else
                 {
-                    ErrorLabel.Content = "Results file is too large for display. Click 'Export' for the comparison results.";
+                    ErrorLabel.Text = "Results file is too large for display. Click 'Export' for the comparison results.";
                     ErrorLabel.Visibility = Visibility.Visible;
                 }
             }
+            catch (DuplicateIdentifierException ex)
+            {
+                var errorBuilder = new StringBuilder($"Error: A duplicate identifier was found while sorting.{Environment.NewLine}Identifiers:{Environment.NewLine}");
+                for (int i = 0; i < ex.IdentifierNames.Count; i++)
+                    errorBuilder.AppendLine($"{ex.IdentifierNames[i]} - {ex.IdentifierValues[i]}");
+
+                ErrorLabel.Text = errorBuilder.ToString();
+                ErrorLabel.Visibility = Visibility.Visible;
+                StartOverFromSortingButton.Visibility = Visibility.Visible;
+            }
             catch (Exception ex)
             {
-                ErrorLabel.Content = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
+                ErrorLabel.Text = $"Error: {ex.Message}{Environment.NewLine} Stack Trace: {ex.StackTrace}";
                 ErrorLabel.Visibility = Visibility.Visible;
+                StartOverFromSortingButton.Visibility = Visibility.Visible;
             }
         }
 
@@ -356,6 +368,7 @@ namespace CsvCompare
             File2ExtraRowsGrid.Visibility = Visibility.Collapsed;
             File1OrphansLabel.Visibility = Visibility.Collapsed;
             File2OrphansLabel.Visibility = Visibility.Collapsed;
+            StartOverFromSortingButton.Visibility = Visibility.Collapsed;
         }
 
         private void HideCompareWindow()
@@ -383,7 +396,7 @@ namespace CsvCompare
 
         private void ClearErrors()
         {
-            ErrorLabel.Content = "";
+            ErrorLabel.Text = "";
             ErrorLabel.Visibility = Visibility.Collapsed;
         }
 

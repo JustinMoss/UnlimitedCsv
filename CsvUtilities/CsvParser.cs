@@ -4,15 +4,38 @@ using System.Data;
 using System.IO;
 using System.Text;
 
-namespace CsvCompare.Library
+namespace CsvUtilities
 {
+    /// <summary>
+    /// Provides a set of methods for parsing CSV text.
+    /// </summary>
     public class CsvParser
     {
+        /// <summary>
+        /// Gets or sets the character code for \n.
+        /// </summary>
         public static int BackslashNCode { get; set; } = 10;
+
+        /// <summary>
+        /// Gets or sets the character code for \r.
+        /// </summary>
         public static int BackslashRCode { get; set; } = 13;
+
+        /// <summary>
+        /// Gets or sets the character code for the escape character. Defaults to a double quote.
+        /// </summary>
         public static int EscapeCode { get; set; } = 34;
+
+        /// <summary>
+        /// Gets or sets the character code for the delimiter. Defaults to a comma.
+        /// </summary>
         public static int DelimiterCode { get; set; } = 44;
 
+        /// <summary>
+        /// Creates a <see cref="DataTable"/> from CSV text.
+        /// </summary>
+        /// <param name="reader">The reader to get the csv text from.</param>
+        /// <returns>A <see cref="DataTable"/> representation of the CSV.</returns>
         public static DataTable CreateDataTable(TextReader reader)
         {
             var parseTokens = Parse(reader);
@@ -36,6 +59,12 @@ namespace CsvCompare.Library
             return dataTable;
         }
 
+        /// <summary>
+        /// Fills in a given string array with the next csv row, stopping at the next <see cref="TokenType.Newline"/>.
+        /// This does not use <see cref="GetNextRow(IEnumerator{Token})"/> to avoid the list of string creation for memory efficiency.
+        /// </summary>
+        /// <param name="tokens">The tokens to fill the row in from.</param>
+        /// <param name="row">The row to fill from the the tokens.</param>
         public static void FillNextRow(IEnumerator<Token> tokens, string[] row)
         {
             var previousTokenType = TokenType.Newline;
@@ -66,6 +95,11 @@ namespace CsvCompare.Library
             }
         }
 
+        /// <summary>
+        /// Get the next CSV row as a list of strings.
+        /// </summary>
+        /// <param name="tokens">The tokens to get the next row from.</param>
+        /// <returns>A list of CSV string values.</returns>
         public static IList<string> GetNextRow(IEnumerator<Token> tokens)
         {
             var values = new List<string>();
@@ -97,6 +131,11 @@ namespace CsvCompare.Library
                 : null;
         }
 
+        /// <summary>
+        /// Parses a CSV string into a list of CSV <see cref="Token"/>.
+        /// </summary>
+        /// <param name="value">The CSV string to parse.</param>
+        /// <returns>A list of the parsed <see cref="Token"/></returns>
         public static IEnumerable<Token> Parse(string value)
         {
             var builder = new StringBuilder();
@@ -133,6 +172,11 @@ namespace CsvCompare.Library
             }
         }
 
+        /// <summary>
+        /// Parses CSV text into a list of CSV <see cref="Token"/>.
+        /// </summary>
+        /// <param name="reader">The <see cref="TextReader"/> to get the CSV text from.</param>
+        /// <returns>A list of the parsed <see cref="Token"/></returns>
         public static IEnumerable<Token> Parse(TextReader reader)
         {
             int charCode;
@@ -225,22 +269,49 @@ namespace CsvCompare.Library
             return token;
         }
 
+        /// <summary>
+        /// A struct representing a single CSV parsed token.
+        /// </summary>
         public struct Token
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Token"/> class.
+            /// </summary>
+            /// <param name="tokenType">The <see cref="TokenType"/> type of this token.</param>
+            /// <param name="value">The string value of this token. Optional.</param>
             public Token(TokenType tokenType, string value = null)
             {
                 TokenType = tokenType;
                 Value = value;
             }
 
+            /// <summary>
+            /// The <see cref="TokenType"/> type of this token.
+            /// </summary>
             public TokenType TokenType { get; }
+
+            /// <summary>
+            /// The string value of this token. Optional.
+            /// </summary>
             public string Value { get; }
         }
 
+        /// <summary>
+        /// Defines the types for CSV tokens.
+        /// </summary>
         public enum TokenType
         {
+            /// <summary>
+            /// A delimiter token, based on the <see cref="DelimiterCode"/>.
+            /// </summary>
             Delimiter,
+            /// <summary>
+            /// A new line token.
+            /// </summary>
             Newline,
+            /// <summary>
+            /// A value token. The <see cref="Token.Value"/> has significance.
+            /// </summary>
             Value
         }
     }

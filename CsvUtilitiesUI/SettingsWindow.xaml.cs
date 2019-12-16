@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using CsvCompare.Library;
+using CsvUtilities;
 using Microsoft.Win32;
 
-namespace CsvCompare
+namespace CsvUtilitiesUI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -22,8 +22,57 @@ namespace CsvCompare
 
         public bool IsClosed { get; set; }
         private ComparisonResultsWindow ComparisonWindow { get; set; }
+        private SortingResultsWindow SortWindow { get; set; }
         private IList<string> File1ColumnNames { get; set; }
         private IList<string> File2ColumnNames { get; set; }
+        private UtilityModes UtilityMode { get; set; } = UtilityModes.Compare;
+
+        private enum UtilityModes
+        {
+            Sort,
+            Compare
+        }
+
+        private void SortPathButton_Click(object sender, RoutedEventArgs e)
+        {
+            SortOrCompareGrid.Visibility = Visibility.Collapsed;
+
+            UtilityMode = UtilityModes.Sort;
+            SetComparisonUiVisibility(Visibility.Collapsed);
+            SortOrCompareButton.Content = "Sort";
+
+            FilesGrid.Visibility = Visibility.Visible;
+            ButtonGrid.Visibility = Visibility.Collapsed;
+            StartOverSoloButton.Visibility = Visibility.Visible;
+        }
+
+        private void ComparePathButton_Click(object sender, RoutedEventArgs e)
+        {
+            SortOrCompareGrid.Visibility = Visibility.Collapsed;
+
+            UtilityMode = UtilityModes.Compare;
+            SetComparisonUiVisibility(Visibility.Visible);
+            SortOrCompareButton.Content = "Compare";
+
+            FilesGrid.Visibility = Visibility.Visible;
+            ButtonGrid.Visibility = Visibility.Collapsed;
+            StartOverSoloButton.Visibility = Visibility.Visible;
+        }
+
+        private void SetComparisonUiVisibility(Visibility visibility)
+        {
+            File2Label.Visibility = visibility;
+            File2TextBox.Visibility = visibility;
+            BrowseFile2Button.Visibility = visibility;
+            ExtraOutputButtonsGrid.Visibility = visibility;
+            ExtraOutputLabel.Visibility = visibility;
+            ExtraOutputSelectedList.Visibility = visibility;
+            CompareExcludeGrid.Visibility = visibility;
+            CompareExcludeLabel.Visibility = visibility;
+            CompareExcludeSelectedList.Visibility = visibility;
+            SkipSortCheckBox.Visibility = visibility;
+            CaseInsensitiveCheckBox.Visibility = visibility;
+        }
 
         private void BrowseFile1_Click(object sender, RoutedEventArgs e)
         {
@@ -57,7 +106,7 @@ namespace CsvCompare
             }
         }
 
-        private void Compare_Click(object sender, RoutedEventArgs e)
+        private void SortOrCompare_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -72,17 +121,30 @@ namespace CsvCompare
                 DisableButtons();
 
                 var rowIdentifierColumns = RowIdentifierSelectedList.Items.Cast<string>().ToList();
-                var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
-                var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
-                var ignoreCase = CaseInsensitiveCheckBox.IsChecked ?? false;
-                var alreadySorted = SkipSortCheckBox.IsChecked ?? false;
 
-                if (ComparisonWindow == null)
-                    ComparisonWindow = new ComparisonResultsWindow(this);
+                if (UtilityMode == UtilityModes.Sort)
+                {
+                    if (SortWindow == null)
+                        SortWindow = new SortingResultsWindow(this);
 
-                ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns, ignoreCase, alreadySorted);
-                ComparisonWindow.Show();
-                ComparisonWindow.CreateResults();
+                    SortWindow.SetSettings(File1TextBox.Text, rowIdentifierColumns);
+                    SortWindow.Show();
+                    SortWindow.CreateResults();
+                }
+                if (UtilityMode == UtilityModes.Compare)
+                {
+                    var inclusionColumns = ExtraOutputSelectedList.Items.Cast<string>().ToList();
+                    var exclusionColumns = CompareExcludeSelectedList.Items.Cast<string>().ToList();
+                    var ignoreCase = CaseInsensitiveCheckBox.IsChecked ?? false;
+                    var alreadySorted = SkipSortCheckBox.IsChecked ?? false;
+
+                    if (ComparisonWindow == null)
+                        ComparisonWindow = new ComparisonResultsWindow(this);
+
+                    ComparisonWindow.SetSettings(File1TextBox.Text, File2TextBox.Text, rowIdentifierColumns, exclusionColumns, inclusionColumns, ignoreCase, alreadySorted);
+                    ComparisonWindow.Show();
+                    ComparisonWindow.CreateResults();
+                }
 
                 EnableButtons();
                 Hide();
@@ -232,10 +294,17 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File1ColumnNames = await CsvReader.ReadColumnsNamesFromFileAsync(File1TextBox.Text);
+                if (!string.IsNullOrEmpty(File1TextBox.Text))
+                {
+                    File1ColumnNames = await CsvReader.ReadColumnsNamesFromFileAsync(File1TextBox.Text);
 
-                if (File2ColumnNames != null)
-                    SetOptions();
+                    if (File2ColumnNames != null || UtilityMode == UtilityModes.Sort)
+                        SetOptions();
+                }
+                else
+                {
+                    File1ColumnNames = null;
+                }
 
                 EnableButtons();
             }
@@ -258,10 +327,17 @@ namespace CsvCompare
                 ClearErrors();
                 DisableButtons();
 
-                File2ColumnNames = await CsvReader.ReadColumnsNamesFromFileAsync(File2TextBox.Text);
+                if (!string.IsNullOrEmpty(File2TextBox.Text))
+                {
+                    File2ColumnNames = await CsvReader.ReadColumnsNamesFromFileAsync(File2TextBox.Text);
 
-                if (File1ColumnNames != null)
-                    SetOptions();
+                    if (File1ColumnNames != null)
+                        SetOptions();
+                }
+                else
+                {
+                    File2ColumnNames = null;
+                }
 
                 EnableButtons();
             }
@@ -277,10 +353,10 @@ namespace CsvCompare
             }
         }
 
-        private void BrowseFile_OnDrop(object sender, DragEventArgs e) 
+        private void BrowseFile_OnDrop(object sender, DragEventArgs e)
             => ((TextBox)sender).Text = ((string[])e.Data.GetData(DataFormats.FileDrop))?[0] ?? "";
 
-        private void BrowseFile_OnDragEnter(object sender, DragEventArgs e) 
+        private void BrowseFile_OnDragEnter(object sender, DragEventArgs e)
             => e.Handled = true;
 
         private void Window_Closed(object sender, EventArgs e)
@@ -292,6 +368,8 @@ namespace CsvCompare
                 IsClosed = true;
                 if (!ComparisonWindow?.IsClosed ?? false)
                     ComparisonWindow.Close();
+                if (!SortWindow?.IsClosed ?? false)
+                    SortWindow.Close();
             }
             catch (Exception ex)
             {
@@ -314,7 +392,9 @@ namespace CsvCompare
 
         private void SetOptions()
         {
-            var commonColumns = File1ColumnNames.Intersect(File2ColumnNames, StringComparer.OrdinalIgnoreCase).ToList();
+            var commonColumns = UtilityMode == UtilityModes.Sort
+                ? File1ColumnNames
+                : File1ColumnNames.Intersect(File2ColumnNames, StringComparer.OrdinalIgnoreCase).ToList();
 
             if (commonColumns.Count == 0)
             {
@@ -338,15 +418,15 @@ namespace CsvCompare
 
             AvailableColumnsList.Items.SortDescriptions.Add(new SortDescription("", ListSortDirection.Ascending));
 
-            CompareButton.Visibility = Visibility.Visible;
-            CaseInsensitiveCheckBox.Visibility = Visibility.Visible;
-            SkipSortCheckBox.Visibility = Visibility.Visible;
             OptionsGrid.Visibility = Visibility.Visible;
+            ButtonGrid.Visibility = Visibility.Visible;
+            StartOverSoloButton.Visibility = Visibility.Collapsed;
         }
 
         private void EnableButtons()
         {
-            CompareButton.IsEnabled = true;
+            StartOverButton.IsEnabled = true;
+            SortOrCompareButton.IsEnabled = true;
             CaseInsensitiveCheckBox.IsEnabled = true;
             SkipSortCheckBox.IsEnabled = true;
             AddRowIdentifierButton.IsEnabled = true;
@@ -361,7 +441,8 @@ namespace CsvCompare
 
         private void DisableButtons()
         {
-            CompareButton.IsEnabled = false;
+            StartOverButton.IsEnabled = false;
+            SortOrCompareButton.IsEnabled = false;
             CaseInsensitiveCheckBox.IsEnabled = false;
             SkipSortCheckBox.IsEnabled = false;
             AddRowIdentifierButton.IsEnabled = false;
@@ -382,11 +463,25 @@ namespace CsvCompare
         private void SetError(string error)
         {
             EnableButtons();
+
             OptionsGrid.Visibility = Visibility.Collapsed;
-            CompareButton.Visibility = Visibility.Collapsed;
-            CaseInsensitiveCheckBox.Visibility = Visibility.Collapsed;
-            SkipSortCheckBox.Visibility = Visibility.Collapsed;
+            ButtonGrid.Visibility = Visibility.Collapsed;
+            StartOverSoloButton.Visibility = Visibility.Visible;
+
             ErrorLabel.Content = error;
+        }
+
+        private void StartOverButton_Click(object sender, RoutedEventArgs e)
+        {
+            FilesGrid.Visibility = Visibility.Collapsed;
+            OptionsGrid.Visibility = Visibility.Collapsed;
+            ButtonGrid.Visibility = Visibility.Collapsed;
+            StartOverSoloButton.Visibility = Visibility.Collapsed;
+
+            File1TextBox.Text = "";
+            File2TextBox.Text = "";
+
+            SortOrCompareGrid.Visibility = Visibility.Visible;
         }
     }
 }
