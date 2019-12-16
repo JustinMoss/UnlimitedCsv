@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using CsvUtilities;
 using Microsoft.Win32;
 
-namespace CsvCompare
+namespace CsvUtilitiesUI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

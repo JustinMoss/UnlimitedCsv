@@ -8,7 +8,7 @@ using System.Windows;
 using CsvUtilities;
 using Microsoft.Win32;
 
-namespace CsvCompare
+namespace CsvUtilitiesUI
 {
     /// <summary>
     /// Interaction logic for ComparisonWindow.xaml
@@ -136,7 +136,7 @@ namespace CsvCompare
                 var file1SortedName = _alreadySorted ? _file1Name : _file1Name.Replace(".csv", "_sorted.csv");
                 var file2SortedName = _alreadySorted ? _file2Name : _file2Name.Replace(".csv", "_sorted.csv");
 
-                var tempFolder = Path.Combine(Path.GetTempPath(), "CsvCompare");
+                var tempFolder = Path.Combine(Path.GetTempPath(), "CsvUtilitiesUI");
                 if (!Directory.Exists(tempFolder))
                     Directory.CreateDirectory(tempFolder);
 
