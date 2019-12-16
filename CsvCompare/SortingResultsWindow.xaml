@@ -1,0 +1,24 @@
+﻿<Window x:Class="CsvUtilitiesUI.SortingResultsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CsvUtilitiesUI"
+        mc:Ignorable="d"
+        Title="CSV Utilities 1.0" Height="750" Width="1300" FontSize="16" Closed="Window_Closed">
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Name="CompareProgressWindow" Grid.Row="0" Grid.Column="0" Background="Transparent" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" Margin="10" Visibility="Collapsed"></TextBox>
+            <TextBox Name="ErrorLabel" Grid.Row="1" Grid.Column="0" Background="Transparent" BorderThickness="0" IsReadOnly="True" TextWrapping="Wrap" Foreground="Red" Margin="10" VerticalContentAlignment="Center"  HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <Button Name="StartOverButton" Grid.Row="2" Grid.Column="0" Margin="10" Content="Start Over" VerticalContentAlignment="Center" Width="120" Height="50" Visibility="Collapsed" Click="StartOver_Click"/>
+        </Grid>
+    </ScrollViewer>
+</Window>
