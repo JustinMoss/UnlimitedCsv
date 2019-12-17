@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace CsvUtilitiesUI
+namespace UnlimitedCsvCompare
 {
     /// <summary>
     /// Interaction logic for App.xaml

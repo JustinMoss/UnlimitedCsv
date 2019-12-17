@@ -1,7 +1,7 @@
-﻿<Application x:Class="CsvUtilitiesUI.App"
+﻿<Application x:Class="UnlimitedCsvCompare.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:CsvUtilitiesUI"
+             xmlns:local="clr-namespace:UnlimitedCsvCompare"
              StartupUri="SettingsWindow.xaml">
     <Application.Resources>
          

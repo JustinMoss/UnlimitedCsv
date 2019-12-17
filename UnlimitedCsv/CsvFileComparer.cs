@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CsvUtilities
+namespace UnlimitedCsv
 {
     /// <summary>
     /// A set of methods for comparing CSV files.

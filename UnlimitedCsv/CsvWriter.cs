@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CsvUtilities
+namespace UnlimitedCsv
 {
     /// <summary>
     /// Provides a set of methods for writing CSV strings and lists to <see cref="StreamWriter"/>.

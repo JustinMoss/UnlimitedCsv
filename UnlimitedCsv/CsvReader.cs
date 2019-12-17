@@ -4,7 +4,7 @@ using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace CsvUtilities
+namespace UnlimitedCsv
 {
     /// <summary>
     /// Provides a set of methods for reading CSV <see cref="CsvParser.Token"/> from files or strings.

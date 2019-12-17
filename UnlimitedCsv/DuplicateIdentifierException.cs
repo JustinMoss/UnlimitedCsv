@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CsvUtilities
+namespace UnlimitedCsv
 {
     /// <summary>
     /// Represents an error when an identifier already exists in another CSV row.

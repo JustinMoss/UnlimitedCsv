@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsvUtilitiesUI", "CsvUtilitiesUI\CsvUtilitiesUI.csproj", "{3F30902C-07FD-4F18-A02C-4186FDAF144A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlimitedCsvCompare", "UnlimitedCsvCompare\UnlimitedCsvCompare.csproj", "{3F30902C-07FD-4F18-A02C-4186FDAF144A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvUtilities", "CsvUtilities\CsvUtilities.csproj", "{56B69FD5-B6BB-4B14-854E-1924F83E643A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnlimitedCsv", "UnlimitedCsv\UnlimitedCsv.csproj", "{56B69FD5-B6BB-4B14-854E-1924F83E643A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

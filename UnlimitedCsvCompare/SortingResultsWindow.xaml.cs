@@ -1,13 +1,13 @@
-﻿using CsvUtilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using UnlimitedCsv;
 
-namespace CsvUtilitiesUI
+namespace UnlimitedCsvCompare
 {
     /// <summary>
     /// Interaction logic for SortingResultsWindow.xaml
@@ -57,7 +57,7 @@ namespace CsvUtilitiesUI
                 var fileTime = DateTime.Now.ToFileTime();
                 var file1SortedName = _file1Name.Replace(".csv", "_sorted.csv");
 
-                var tempFolder = Path.Combine(Path.GetTempPath(), "CsvUtilitiesUI");
+                var tempFolder = Path.Combine(Path.GetTempPath(), "UnlimitedCsvCompare");
                 if (!Directory.Exists(tempFolder))
                     Directory.CreateDirectory(tempFolder);
 

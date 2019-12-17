@@ -4,7 +4,7 @@ using System.Data;
 using System.IO;
 using System.Text;
 
-namespace CsvUtilities
+namespace UnlimitedCsv
 {
     /// <summary>
     /// Provides a set of methods for parsing CSV text.

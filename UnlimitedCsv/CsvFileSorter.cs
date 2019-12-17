@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CsvUtilities
+namespace UnlimitedCsv
 {
     /// <summary>
     /// Provides a set of methods for sorting CSV files.

@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using CsvUtilities;
+using UnlimitedCsv;
 using Microsoft.Win32;
 
-namespace CsvUtilitiesUI
+namespace UnlimitedCsvCompare
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
