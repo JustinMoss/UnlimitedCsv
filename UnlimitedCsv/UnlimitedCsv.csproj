@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <PackageId>UnlimitedCsv</PackageId>
-    <PackageVersion>1.0.0-alpha00</PackageVersion>
+    <PackageVersion>1.0.0-alpha01</PackageVersion>
     <Authors>Justin Moss</Authors>
     <Description>A set of tools for quickly sorting and comparing csv files and strings of any size.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
